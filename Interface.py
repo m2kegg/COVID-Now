@@ -26,21 +26,21 @@ def loc_button_callback():
     info_frame.grid_remove()
 
 def appear_button_callback():
-    if app._get_appearance_mode()=="light":
-        app._set_appearance_mode("dark")
+    if ctk.get_appearance_mode().lower()=="light":
+        ctk.set_appearance_mode("dark")
     else:
-        app._set_appearance_mode("light") 
+        ctk.set_appearance_mode("light") 
 
 app = ctk.CTk()
-
 app.title("COVID Now")   
 app.geometry("1280x720") # временное решение создания размера окна
+
 
 app.grid_rowconfigure(0, weight=1)  # определение grid-системы
 app.grid_columnconfigure((1), weight=1)
 
 menu_frame = ctk.CTkFrame(master=app, width=90, fg_color="#D9D9D9", bg_color="#D9D9D9") #создание зоны основной навигации
-main_frame = ctk.CTkFrame(master=app, fg_color=("#FFFFFF","#000000"), bg_color=("#FFFFFF","#000000")) #создание основной зоны
+main_frame = ctk.CTkFrame(master=app, fg_color="#FFFFFF", bg_color="FFFFFF") #создание основной зоны
 info_frame = ctk.CTkScrollableFrame(master=app, width=251, fg_color="#D9D9D9", bg_color="#D9D9D9", border_width=0) #создание зоны новостей
 loc_frame = ctk.CTkFrame(master=app, width=251, fg_color="#D9D9D9", bg_color="#D9D9D9")
 cal_frame = ctk.CTkFrame(master=app, width=251, fg_color="#D9D9D9", bg_color="#D9D9D9")
@@ -72,7 +72,7 @@ cal_button = ctk.CTkButton( menu_frame,
                             corner_radius=0,
                             border_spacing=0,
                             fg_color='transparent',
-                            text_color=("black","red"),
+                            text_color=("black","white"),
                             command=cal_button_callback)
 
 loc_button = ctk.CTkButton(menu_frame, 
