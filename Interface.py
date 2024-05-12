@@ -38,11 +38,11 @@ app.geometry("1280x720") # временное решение создания р
 
 
 app.grid_rowconfigure(0, weight=1)  # определение grid-системы
-app.grid_columnconfigure((2), weight=1)
+app.grid_columnconfigure(2, weight=1)
 
 menu_frame = ctk.CTkFrame(master=app, width=90, fg_color="#D9D9D9", bg_color="#D9D9D9") #создание зоны основной навигации
 main_frame = ctk.CTkFrame(master=app, width=939, fg_color="#FFFFFF", bg_color="#FFFFFF") #создание основной зоны
-info_frame = ctk.CTkScrollableFrame(master=app, fg_color="#D9D9D9", bg_color="#D9D9D9", border_width=0) #создание зоны новостей
+info_frame = ctk.CTkScrollableFrame(master=app, fg_color="#D9D9D9", bg_color="#D9D9D9") #создание зоны новостей
 loc_frame = ctk.CTkFrame(master=app, fg_color="#D9D9D9", bg_color="#D9D9D9")
 cal_frame = ctk.CTkFrame(master=app, fg_color="#D9D9D9", bg_color="#D9D9D9")
 
@@ -110,16 +110,21 @@ ill_chart_frame = ctk.CTkFrame(charts_frame,  width=400, height=250, corner_radi
 cured_chart_frame = ctk.CTkFrame(charts_frame,  width=400, height=250, corner_radius=20, fg_color="#D9D9D9")
 death_chart_frame = ctk.CTkFrame(charts_frame,  width=400, height=250, corner_radius=20, fg_color="#D9D9D9")
 
-name_textbox = ctk.CTkTextbox(main_frame,fg_color='transparent', font=("Roboto",36), height=43)
-name_textbox.insert("0.0","Данные o COVID-19 на сегодня, <дата>")
+name_textbox = ctk.CTkLabel(main_frame,
+                            fg_color='transparent', 
+                            font=("Roboto",36),
+                            height=43,
+                            text="Данные o COVID-19 на сегодня, <дата>",
+                            anchor="nw")
+
 
 
 name_textbox.grid(row= 0,column=0, sticky="ew",padx=(54,0), pady=(33,0))
-charts_frame.grid(row=1,column=0,sticky="")
+charts_frame.grid(row=1,column=0)
 
-main_info_label.grid(row= 0,column=0, sticky="",pady=(56,0), padx=(54,0))
-ill_chart_frame.grid(row= 0,column=1, sticky="",pady=(56,0), padx=(54,52))
-cured_chart_frame.grid(row= 1,column=0, sticky="",pady=(31,0), padx=(54,0))
-death_chart_frame.grid(row= 1,column=1, sticky="",pady=(31,0), padx=(54,52))
+main_info_label.grid(row= 0,column=0,pady=(56,0), padx=(54,0))
+ill_chart_frame.grid(row= 0,column=1, pady=(56,0), padx=(54,52))
+cured_chart_frame.grid(row= 1,column=0, pady=(31,0), padx=(54,0))
+death_chart_frame.grid(row= 1,column=1, pady=(31,0), padx=(54,52))
 
 app.mainloop()
