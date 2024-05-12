@@ -1,30 +1,43 @@
 import customtkinter as ctk
 import ctkchart as chart
 from PIL import Image
+from datetime import datetime 
+import samples as sa
 
 def home_button_callback():
-    home_button.configure(fg_color=color_const)
+    home_button.configure(fg_color=sa.basic_color)
     cal_button.configure(fg_color="transparent")
     loc_button.configure(fg_color="transparent")
     cal_frame.grid_remove()
     loc_frame.grid_remove()
     info_frame.grid(row=0, column=2, sticky="nsew")
 
+    name_textbox.configure(text=sa.home_main_text+f"{datetime.today().strftime('%d.%m.%Y')}")
+    main_info_label.configure(text=sa.frame_home_text)
+
+
+
 def cal_button_callback():
     home_button.configure(fg_color="transparent")
-    cal_button.configure(fg_color=color_const)
+    cal_button.configure(fg_color=sa.basic_color)
     loc_button.configure(fg_color="transparent")
     cal_frame.grid(row=0, column=2, sticky="nsew")
     loc_frame.grid_remove()
     info_frame.grid_remove()
 
+    name_textbox.configure(text=sa.cal_main_text)
+    main_info_label.configure(text=sa.frame_cal_text)
+
 def loc_button_callback():
     home_button.configure(fg_color="transparent")
     cal_button.configure(fg_color="transparent")
-    loc_button.configure(fg_color=color_const)
+    loc_button.configure(fg_color=sa.basic_color)
     cal_frame.grid_remove()
     loc_frame.grid(row=0, column=2, sticky="nsew")
     info_frame.grid_remove()
+
+    name_textbox.configure(text=sa.loc_main_text)
+    main_info_label.configure(text=sa.frame_loc_text)
 
 def appear_button_callback():
     if ctk.get_appearance_mode().lower()=="light":
@@ -35,7 +48,6 @@ def appear_button_callback():
 app = ctk.CTk()
 app.title("COVID Now")   
 app.geometry("1280x720") # временное решение создания размера окна
-
 
 app.grid_rowconfigure(0, weight=1)  # определение grid-системы
 app.grid_columnconfigure(2, weight=1)
@@ -62,8 +74,6 @@ home_button = ctk.CTkButton( menu_frame,
                             text_color=("black","white"),
                             command=home_button_callback
                            )
-
-color_const = home_button.cget("fg_color") #временное решение для определения цвета в установленной схеме
 
 cal_button = ctk.CTkButton( menu_frame, 
                             width=90, 
@@ -104,27 +114,31 @@ loc_button.grid(column=0,row=2, sticky="new")
 appear_button.grid(column=0,row=4, sticky="sew")
 
 charts_frame=ctk.CTkFrame(main_frame,fg_color="#FFFFFF")
+name_textbox = ctk.CTkLabel(main_frame,
+                            fg_color='transparent', 
+                            font=("Roboto",36),
+                            height=43,
+                            text=sa.home_main_text+f"{datetime.today().strftime('%d.%m.%Y')}",
+                            anchor="nw")
+name_textbox.grid(row= 0,column=0, sticky="ew",padx=(54,0), pady=(33,0))
+charts_frame.grid(row=1,column=0)
+
 
 main_info_label = ctk.CTkLabel(charts_frame, width=400, height=250, corner_radius=20, fg_color="#D9D9D9")
 ill_chart_frame = ctk.CTkFrame(charts_frame,  width=400, height=250, corner_radius=20, fg_color="#D9D9D9")
 cured_chart_frame = ctk.CTkFrame(charts_frame,  width=400, height=250, corner_radius=20, fg_color="#D9D9D9")
 death_chart_frame = ctk.CTkFrame(charts_frame,  width=400, height=250, corner_radius=20, fg_color="#D9D9D9")
 
-name_textbox = ctk.CTkLabel(main_frame,
-                            fg_color='transparent', 
-                            font=("Roboto",36),
-                            height=43,
-                            text="Данные o COVID-19 на сегодня, <дата>",
-                            anchor="nw")
-
-
-
-name_textbox.grid(row= 0,column=0, sticky="ew",padx=(54,0), pady=(33,0))
-charts_frame.grid(row=1,column=0)
-
 main_info_label.grid(row= 0,column=0,pady=(56,0), padx=(54,0))
 ill_chart_frame.grid(row= 0,column=1, pady=(56,0), padx=(54,52))
 cured_chart_frame.grid(row= 1,column=0, pady=(31,0), padx=(54,0))
 death_chart_frame.grid(row= 1,column=1, pady=(31,0), padx=(54,52))
+
+main_info_label.configure(
+text=sa.frame_home_text,
+wraplength=364,
+font=("Roboto",14),
+anchor="w",
+justify="left")
 
 app.mainloop()
