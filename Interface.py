@@ -15,8 +15,6 @@ def home_button_callback():
     name_textbox.configure(text=sa.home_main_text+f"{datetime.today().strftime('%d.%m.%Y')}")
     main_info_label.configure(text=sa.frame_home_text)
 
-
-
 def cal_button_callback():
     home_button.configure(fg_color="transparent")
     cal_button.configure(fg_color=sa.basic_color)
@@ -36,14 +34,18 @@ def loc_button_callback():
     loc_frame.grid(row=0, column=2, sticky="nsew")
     info_frame.grid_remove()
 
-    name_textbox.configure(text=sa.loc_main_text)
+    name_textbox.configure(text=sa.loc_main_text+loc_opt_box.get())
     main_info_label.configure(text=sa.frame_loc_text)
+
 
 def appear_button_callback():
     if ctk.get_appearance_mode().lower()=="light":
         ctk.set_appearance_mode("dark")
     else:
         ctk.set_appearance_mode("light") 
+
+def option_box_callback(choice):
+    name_textbox.configure(text=sa.loc_main_text+choice)
 
 app = ctk.CTk()
 app.title("COVID Now")   
@@ -141,4 +143,18 @@ font=("Roboto",14),
 anchor="w",
 justify="left")
 
+loc_opt_box= ctk.CTkComboBox(loc_frame,
+                                 width=225,
+                                 height=39, 
+                                 values=sa.regions, 
+                                 command=option_box_callback)
+
+last_ten_box = ctk.CTkCheckBox(loc_frame,
+                              width=225,
+                              text="Последние 10 дней")
+
+loc_frame.grid_columnconfigure(0,weight=1)
+
+loc_opt_box.grid(row=0, column=0, padx=(13,13),pady=(33,0), sticky="ew")
+last_ten_box.grid(row=1, column=0, pady=(40,0), sticky="ew")
 app.mainloop()
