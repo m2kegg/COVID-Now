@@ -3,11 +3,12 @@ import ctkchart as chart
 from PIL import Image
 from datetime import datetime 
 import samples as sa
+import os
 
 def home_button_callback():
-    home_button.configure(fg_color=sa.basic_color)
-    cal_button.configure(fg_color="transparent")
-    loc_button.configure(fg_color="transparent")
+    home_button.configure(fg_color=sa.basic_color, image=home_img_a)
+    cal_button.configure(fg_color="transparent", image=cal_img_d)
+    loc_button.configure(fg_color="transparent", image=loc_img_d)
     cal_frame.grid_remove()
     loc_frame.grid_remove()
     info_frame.grid(row=0, column=2, sticky="nsew")
@@ -16,9 +17,9 @@ def home_button_callback():
     main_info_label.configure(text=sa.frame_home_text)
 
 def cal_button_callback():
-    home_button.configure(fg_color="transparent")
-    cal_button.configure(fg_color=sa.basic_color)
-    loc_button.configure(fg_color="transparent")
+    home_button.configure(fg_color="transparent", image=home_img_d)
+    cal_button.configure(fg_color=sa.basic_color, image=cal_img_a)
+    loc_button.configure(fg_color="transparent", image=loc_img_d)
     cal_frame.grid(row=0, column=2, sticky="nsew")
     loc_frame.grid_remove()
     info_frame.grid_remove()
@@ -27,9 +28,9 @@ def cal_button_callback():
     main_info_label.configure(text=sa.frame_cal_text)
 
 def loc_button_callback():
-    home_button.configure(fg_color="transparent")
-    cal_button.configure(fg_color="transparent")
-    loc_button.configure(fg_color=sa.basic_color)
+    home_button.configure(fg_color="transparent", image=home_img_d)
+    cal_button.configure(fg_color="transparent", image=cal_img_d)
+    loc_button.configure(fg_color=sa.basic_color, image=loc_img_a)
     cal_frame.grid_remove()
     loc_frame.grid(row=0, column=2, sticky="nsew")
     info_frame.grid_remove()
@@ -66,50 +67,84 @@ info_frame.grid(row=0, column=2, sticky="nswe") # инфо-режим стоит
 
 menu_frame.grid_rowconfigure(3,weight=1)
 
+# определение иконок кнопок в активном и неактивном состоянии
+file_path = os.path.dirname(os.path.realpath(__file__))
+print(file_path)
+home_img_a = ctk.CTkImage(light_image=Image.open(file_path+"\images\home_w.png"),
+                       dark_image=Image.open(file_path+"\images\home_b.png"),
+                        size=(24,24))
+home_img_d = ctk.CTkImage(light_image=Image.open(file_path+"\images\home_b.png"),
+                       dark_image=Image.open(file_path+"\images\home_w.png"),
+                        size=(24,24))
+
+cal_img_a = ctk.CTkImage(light_image=Image.open(file_path+"\images\calendar_w.png"),
+                       dark_image=Image.open(file_path+"\images\calendar_b.png"),
+                        size=(24,24))
+cal_img_d = ctk.CTkImage(light_image=Image.open(file_path+"\images\calendar_b.png"),
+                       dark_image=Image.open(file_path+"\images\calendar_w.png"),
+                        size=(24,24))
+
+loc_img_a = ctk.CTkImage(light_image=Image.open(file_path+"\images\gps_w.png"),
+                       dark_image=Image.open(file_path+"\images\gps_b.png"),
+                        size=(24,24))
+loc_img_d = ctk.CTkImage(light_image=Image.open(file_path+"\images\gps_b.png"),
+                       dark_image=Image.open(file_path+"\images\gps_w.png"),
+                        size=(24,24))
+
+theme_ing = ctk.CTkImage(light_image=Image.open(file_path+"\images\light.png"),
+                       dark_image=Image.open(file_path+"\images\moon.png"),
+                        size=(24,24))
+
+# определение кнопок
 home_button = ctk.CTkButton( menu_frame, 
                             width=90, 
                             height=90,
-                            text='Home',
+                            text='',
                             border_width=0,
                             corner_radius=0,
                             border_spacing=0,
                             text_color=("black","white"),
-                            command=home_button_callback
+                            command=home_button_callback,
+                            image=home_img_a
                            )
 
 cal_button = ctk.CTkButton( menu_frame, 
                             width=90, 
                             height=90, 
-                            text="Cal",
+                            text="",
                             border_width=0,
                             corner_radius=0,
                             border_spacing=0,
                             fg_color='transparent',
                             text_color=("black","white"),
-                            command=cal_button_callback)
+                            command=cal_button_callback,
+                            image=cal_img_d)
 
 loc_button = ctk.CTkButton(menu_frame, 
                             width=90, 
                             height=90, 
-                            text="Loc",
+                            text="",
                             border_width=0,
                             corner_radius=0,
                             border_spacing=0,
                             fg_color='transparent',
                             text_color=("black","white"),
-                            command=loc_button_callback)
+                            command=loc_button_callback,
+                            image=loc_img_d)
 
 appear_button = ctk.CTkButton(menu_frame, 
                             width=90, 
                             height=90, 
-                            text="*",
+                            text="",
                             border_width=0,
                             corner_radius=0,
                             border_spacing=0,
                             fg_color='transparent',
                             text_color=("black","white"),
-                            command=appear_button_callback)
+                            command=appear_button_callback,
+                            image=theme_ing)
 
+# конфигурация кнопок
 home_button.grid(column=0,row=0, sticky="new")
 cal_button.grid(column=0,row=1, sticky="new")
 loc_button.grid(column=0,row=2, sticky="new")
@@ -147,14 +182,16 @@ loc_opt_box= ctk.CTkComboBox(loc_frame,
                                  width=225,
                                  height=39, 
                                  values=sa.regions, 
-                                 command=option_box_callback)
+                                 command=option_box_callback,
+                                 font=("Roboto",15))
 
 last_ten_box = ctk.CTkCheckBox(loc_frame,
                               width=225,
-                              text="Последние 10 дней")
+                              text="Последние 10 дней",
+                              font=("Roboto",16))
 
-loc_frame.grid_columnconfigure(0,weight=1)
+loc_frame.grid_columnconfigure(0,weight=2)
 
 loc_opt_box.grid(row=0, column=0, padx=(13,13),pady=(33,0), sticky="ew")
-last_ten_box.grid(row=1, column=0, pady=(40,0), sticky="ew")
+last_ten_box.grid(row=1, column=0,padx=(13,13), pady=(40,0), sticky="ew")
 app.mainloop()
