@@ -48,6 +48,18 @@ def appear_button_callback():
 def option_box_callback(choice):
     name_textbox.configure(text=sa.loc_main_text+choice)
 
+
+
+def set_news_frame():
+    info_frame.grid_remove()
+    menu_new_val = [""] # переменная которая будет хранить полученные новости
+    label = ctk.CTkTextbox(info_frame,font=("Roboto Mono",14), fg_color="#FFFFFF", corner_radius=20)
+    for tmp_text in menu_new_val:
+        label.insert(ctk.END,"\n\n"+tmp_text)
+    label.configure(state="disabled")
+    label.grid(row=0, column=0, padx=(10,10), pady=(15,15) ,sticky="nsew")
+
+
 app = ctk.CTk()
 app.title("COVID Now")   
 app.geometry("1280x720") # временное решение создания размера окна
@@ -57,15 +69,19 @@ app.grid_columnconfigure(2, weight=1)
 
 menu_frame = ctk.CTkFrame(master=app, width=90, fg_color="#D9D9D9", bg_color="#D9D9D9") #создание зоны основной навигации
 main_frame = ctk.CTkFrame(master=app, width=939, fg_color="#FFFFFF", bg_color="#FFFFFF") #создание основной зоны
-info_frame = ctk.CTkScrollableFrame(master=app, fg_color="#D9D9D9", bg_color="#D9D9D9") #создание зоны новостей
+info_frame = ctk.CTkFrame(master=app, fg_color="#D9D9D9", bg_color="#D9D9D9") #создание зоны новостей
 loc_frame = ctk.CTkFrame(master=app, fg_color="#D9D9D9", bg_color="#D9D9D9")
 cal_frame = ctk.CTkFrame(master=app, fg_color="#D9D9D9", bg_color="#D9D9D9")
+
+set_news_frame()
 
 menu_frame.grid(row=0, column=0, sticky="ns") #расположение зоны основной навигации
 main_frame.grid(row=0, column=1, sticky="nsew")
 info_frame.grid(row=0, column=2, sticky="nswe") # инфо-режим стоит по умолчанию при запуске программы
 
 menu_frame.grid_rowconfigure(3,weight=1)
+info_frame.grid_rowconfigure(0,weight=1)
+info_frame.grid_columnconfigure(0, weight=1)
 
 # определение иконок кнопок в активном и неактивном состоянии
 file_path = os.path.dirname(os.path.realpath(__file__))
