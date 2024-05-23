@@ -1,9 +1,9 @@
 import customtkinter as ctk
-import ctkchart as chart
 from PIL import Image
 from datetime import datetime 
 import samples as sa
 import os
+from calendar import monthrange
 
 def home_button_callback():
     home_button.configure(fg_color=sa.basic_color, image=home_img_a)
@@ -24,7 +24,7 @@ def cal_button_callback():
     loc_frame.grid_remove()
     info_frame.grid_remove()
 
-    name_textbox.configure(text=sa.cal_main_text)
+    name_textbox.configure(text=sa.cal_main_text+'%(day)02d.%(month)02d.%(year)d' %{'day':sa.day, 'month':sa.month,'year':sa.year})
     main_info_label.configure(text=sa.frame_cal_text)
 
 def loc_button_callback():
@@ -35,7 +35,7 @@ def loc_button_callback():
     loc_frame.grid(row=0, column=2, sticky="nsew")
     info_frame.grid_remove()
 
-    name_textbox.configure(text=sa.loc_main_text+loc_opt_box.get())
+    name_textbox.configure(text=sa.loc_main_text+loc_opt_menu.get())
     main_info_label.configure(text=sa.frame_loc_text)
 
 
@@ -45,8 +45,41 @@ def appear_button_callback():
     else:
         ctk.set_appearance_mode("light") 
 
-def option_box_callback(choice):
+def option_menu_callback(choice):
     name_textbox.configure(text=sa.loc_main_text+choice)
+
+def data_optionmenu_callback(choice):
+    
+    year_i = int(year_menu.get())
+    month_i = sa.months.index(month_menu.get())+1
+    first_info = monthrange(year_i, month_i)
+    for i in range(0,first_info[0]):
+        button = calendar_frame.grid_slaves(row=2+i//7, column=i%7)[0]
+        button.configure(state="normal", text='')
+    for i in range(first_info[0], first_info[1]+first_info[0]):
+        button = calendar_frame.grid_slaves(row=2+i//7, column=i%7)[0]
+        button.configure(state="normal", text=str(i-first_info[0]+1),
+                        command=lambda m=i-first_info[0]+1:date_button_callback(m))
+    for i in range(first_info[1]+first_info[0], 42):
+        button = calendar_frame.grid_slaves(row=2+i//7, column=i%7)[0]
+        button.configure(state="normal", text='')
+    if (choice != -1):
+        date_button_callback(1)
+    else:
+        calendar_frame.grid_slaves(row=2+(sa.day+first_info[0]-1)//7, column=(sa.day+first_info[0]-1)%7)[0].configure(border_width=1)
+
+
+def date_button_callback(choice):
+    first_info = monthrange(sa.year, sa.month)
+    calendar_frame.grid_slaves(row=2+(sa.day+first_info[0]-1)//7, column=(sa.day+first_info[0]-1)%7)[0].configure(border_width=0)
+    # получает нажатую на календаре кнопку даты и разбирает её, записывает в файл констант
+    sa.day = choice
+    sa.month = sa.months.index(month_menu.get())+1
+    sa.year = int(year_menu.get())
+    first_info = monthrange(sa.year, sa.month)
+    text_tmp=str(name_textbox.cget("text"))[:-10]
+    calendar_frame.grid_slaves(row=2+(sa.day+first_info[0]-1)//7, column=(sa.day+first_info[0]-1)%7)[0].configure(border_width=1)
+    name_textbox.configure(text=text_tmp+'%(day)02d.%(month)02d.%(year)d' %{'day':sa.day, 'month':sa.month,'year':sa.year})
 
 
 
@@ -58,6 +91,36 @@ def set_news_frame():
         label.insert(ctk.END,"\n\n"+tmp_text)
     label.configure(state="disabled")
     label.grid(row=0, column=0, padx=(10,10), pady=(15,15) ,sticky="nsew")
+
+def set_calendar_frame():
+    year_val = []
+    datetime_str = datetime.today().strftime
+    for year in range(2019, int(datetime_str("%Y"))+1):
+        year_val.append(str(year))
+    for i,name in enumerate(sa.week_name):
+        week_label = ctk.CTkLabel(calendar_frame, text=name,font=("Roboto", 12), text_color="white")
+        week_label.grid(row=1, column=i)
+
+    month_menu.grid(row=0, column=0, columnspan=4)
+    year_menu.grid(row=0, column=4, columnspan=3)
+    for i in range (0, 42):
+        button = ctk.CTkButton(calendar_frame, text="", 
+                               width=20, 
+                               state="disabled", 
+                               fg_color="transparent",
+                               bg_color="transparent",
+                               border_color="black",
+                               
+                               )
+        button.grid(row=2+i//7, column=i%7)
+    sa.day=int(datetime_str("%d"))
+    sa.month=int(datetime_str("%m"))
+    sa.year=int(datetime_str("%Y"))
+    year_menu.configure(values=year_val)
+    year_menu.set(year_val[-1])
+    month_menu.set(sa.months[int(sa.month)-1])
+    data_optionmenu_callback(-1)
+
 
 
 app = ctk.CTk()
@@ -194,11 +257,11 @@ font=("Roboto",14),
 anchor="w",
 justify="left")
 
-loc_opt_box= ctk.CTkComboBox(loc_frame,
+loc_opt_menu= ctk.CTkOptionMenu(loc_frame,
                                  width=225,
                                  height=39, 
                                  values=sa.regions, 
-                                 command=option_box_callback,
+                                 command=option_menu_callback,
                                  font=("Roboto",15))
 
 last_ten_box = ctk.CTkCheckBox(loc_frame,
@@ -208,6 +271,23 @@ last_ten_box = ctk.CTkCheckBox(loc_frame,
 
 loc_frame.grid_columnconfigure(0,weight=2)
 
-loc_opt_box.grid(row=0, column=0, padx=(13,13),pady=(33,0), sticky="ew")
+loc_opt_menu.grid(row=0, column=0, padx=(13,13),pady=(33,0), sticky="ew")
 last_ten_box.grid(row=1, column=0,padx=(13,13), pady=(40,0), sticky="ew")
+
+calendar_frame = ctk.CTkFrame(master=cal_frame, fg_color=sa.basic_color)
+
+#создание календаря
+month_menu = ctk.CTkOptionMenu(calendar_frame,values=sa.months, 
+                                 font=("Roboto", 14),
+                                 corner_radius=0,
+                                 width=120,
+                                 command=data_optionmenu_callback)
+year_menu = ctk.CTkOptionMenu(calendar_frame,
+                                values=[],  
+                                 font=("Roboto", 14),
+                                 corner_radius=0,
+                                 width=90,
+                                 command=data_optionmenu_callback)
+set_calendar_frame()
+calendar_frame.grid(row=0, column=0, padx=(10,10),pady=(50,0))
 app.mainloop()
