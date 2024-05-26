@@ -9,33 +9,51 @@ def home_button_callback():
     home_button.configure(fg_color=sa.basic_color, image=home_img_a)
     cal_button.configure(fg_color="transparent", image=cal_img_d)
     loc_button.configure(fg_color="transparent", image=loc_img_d)
-    cal_frame.grid_remove()
-    loc_frame.grid_remove()
-    info_frame.grid(row=0, column=2, sticky="nsew")
 
-    name_textbox.configure(text=sa.home_main_text+f"{datetime.today().strftime('%d.%m.%Y')}")
+    info_frame.grid_rowconfigure((0,1,2),weight=0)
+    info_frame.grid_columnconfigure(0, weight=0)
+
+    info_frame.grid_rowconfigure(0,weight=1)
+    info_frame.grid_columnconfigure(0, weight=1)
+
+    news_textbox.grid(row=0, column=0, padx=(10,10), pady=(15,15) ,sticky="nsew")
+    loc_opt_menu.grid_remove()
+    last_ten_box.grid_remove()
+    calendar_frame.grid_remove()
+
+    name_textbox_text.set(sa.home_main_text+f"{datetime.today().strftime('%d.%m.%Y')}")
     main_info_label.configure(text=sa.frame_home_text)
 
 def cal_button_callback():
     home_button.configure(fg_color="transparent", image=home_img_d)
     cal_button.configure(fg_color=sa.basic_color, image=cal_img_a)
     loc_button.configure(fg_color="transparent", image=loc_img_d)
-    cal_frame.grid(row=0, column=2, sticky="nsew")
-    loc_frame.grid_remove()
-    info_frame.grid_remove()
 
-    name_textbox.configure(text=sa.cal_main_text+'%(day)02d.%(month)02d.%(year)d' %{'day':sa.day, 'month':sa.month,'year':sa.year})
+    info_frame.grid_rowconfigure((0,1,2),weight=0)
+    info_frame.grid_columnconfigure(0, weight=1)
+
+    news_textbox.grid_remove()
+    loc_opt_menu.grid_remove()
+    last_ten_box.grid_remove()
+    calendar_frame.grid_configure(row=0, column=0, padx=(10,10),pady=(50,0), sticky="n")
+
+    name_textbox_text.set(sa.cal_main_text+'%(day)02d.%(month)02d.%(year)d' %{'day':sa.day, 'month':sa.month,'year':sa.year})
     main_info_label.configure(text=sa.frame_cal_text)
 
 def loc_button_callback():
     home_button.configure(fg_color="transparent", image=home_img_d)
     cal_button.configure(fg_color="transparent", image=cal_img_d)
     loc_button.configure(fg_color=sa.basic_color, image=loc_img_a)
-    cal_frame.grid_remove()
-    loc_frame.grid(row=0, column=2, sticky="nsew")
-    info_frame.grid_remove()
 
-    name_textbox.configure(text=sa.loc_main_text+loc_opt_menu.get())
+    info_frame.grid_rowconfigure((0,1,2),weight=0)
+    info_frame.grid_columnconfigure(0, weight=1)
+
+    news_textbox.grid_remove()
+    loc_opt_menu.grid_configure(row=0, column=0, padx=(13,13),pady=(33,0), sticky="ew")
+    last_ten_box.grid_configure(row=1, column=0, padx=(13,13), pady=(40,0), sticky="")
+    calendar_frame.grid_configure(row=2, column=0, padx=(10,10),pady=(50,0))
+
+    name_textbox_text.set(sa.loc_main_text+loc_opt_menu.get()+" на "+'%(day)02d.%(month)02d.%(year)d' %{'day':sa.day, 'month':sa.month,'year':sa.year})
     main_info_label.configure(text=sa.frame_loc_text)
 
 
@@ -46,23 +64,22 @@ def appear_button_callback():
         ctk.set_appearance_mode("light") 
 
 def option_menu_callback(choice):
-    name_textbox.configure(text=sa.loc_main_text+choice)
+    name_textbox_text.set(sa.loc_main_text+choice+" на "+'%(day)02d.%(month)02d.%(year)d' %{'day':sa.day, 'month':sa.month,'year':sa.year})
 
-def data_optionmenu_callback(choice):
-    
+def data_optionmenu_callback(choice):   
     year_i = int(year_menu.get())
     month_i = sa.months.index(month_menu.get())+1
     first_info = monthrange(year_i, month_i)
     for i in range(0,first_info[0]):
         button = calendar_frame.grid_slaves(row=2+i//7, column=i%7)[0]
-        button.configure(state="normal", text='')
+        button.configure(state="disabled", text='')
     for i in range(first_info[0], first_info[1]+first_info[0]):
         button = calendar_frame.grid_slaves(row=2+i//7, column=i%7)[0]
         button.configure(state="normal", text=str(i-first_info[0]+1),
                         command=lambda m=i-first_info[0]+1:date_button_callback(m))
     for i in range(first_info[1]+first_info[0], 42):
         button = calendar_frame.grid_slaves(row=2+i//7, column=i%7)[0]
-        button.configure(state="normal", text='')
+        button.configure(state="disabled", text='')
     if (choice != -1):
         date_button_callback(1)
     else:
@@ -77,21 +94,18 @@ def date_button_callback(choice):
     sa.month = sa.months.index(month_menu.get())+1
     sa.year = int(year_menu.get())
     first_info = monthrange(sa.year, sa.month)
-    text_tmp=str(name_textbox.cget("text"))[:-10]
+    text_tmp=str(name_textbox_text.get())[:-10]
     calendar_frame.grid_slaves(row=2+(sa.day+first_info[0]-1)//7, column=(sa.day+first_info[0]-1)%7)[0].configure(border_width=1)
-    name_textbox.configure(text=text_tmp+'%(day)02d.%(month)02d.%(year)d' %{'day':sa.day, 'month':sa.month,'year':sa.year})
+    name_textbox_text.set(text_tmp+'%(day)02d.%(month)02d.%(year)d' %{'day':sa.day, 'month':sa.month,'year':sa.year})
 
 
 
 def set_news_frame():
-    info_frame.grid_remove()
     menu_new_val = [""] # переменная которая будет хранить полученные новости
-    label = ctk.CTkTextbox(info_frame,font=("Roboto Mono",14), fg_color="#FFFFFF", corner_radius=20)
     for tmp_text in menu_new_val:
-        label.insert(ctk.END,"\n\n"+tmp_text)
-    label.configure(state="disabled")
-    label.grid(row=0, column=0, padx=(10,10), pady=(15,15) ,sticky="nsew")
-
+        news_textbox.insert(ctk.END,"\n\n"+tmp_text)
+    news_textbox.configure(state="disabled")
+    
 def set_calendar_frame():
     year_val = []
     datetime_str = datetime.today().strftime
@@ -127,28 +141,22 @@ app = ctk.CTk()
 app.title("COVID Now")   
 app.geometry("1280x720") # временное решение создания размера окна
 
-app.grid_rowconfigure(0, weight=1)  # определение grid-системы
+app.grid_rowconfigure((0,1), weight=1)  # определение grid-системы
 app.grid_columnconfigure(2, weight=1)
 
 menu_frame = ctk.CTkFrame(master=app, width=90, fg_color="#D9D9D9", bg_color="#D9D9D9") #создание зоны основной навигации
 main_frame = ctk.CTkFrame(master=app, width=939, fg_color="#FFFFFF", bg_color="#FFFFFF") #создание основной зоны
 info_frame = ctk.CTkFrame(master=app, fg_color="#D9D9D9", bg_color="#D9D9D9") #создание зоны новостей
-loc_frame = ctk.CTkFrame(master=app, fg_color="#D9D9D9", bg_color="#D9D9D9")
-cal_frame = ctk.CTkFrame(master=app, fg_color="#D9D9D9", bg_color="#D9D9D9")
 
-set_news_frame()
-
-menu_frame.grid(row=0, column=0, sticky="ns") #расположение зоны основной навигации
-main_frame.grid(row=0, column=1, sticky="nsew")
-info_frame.grid(row=0, column=2, sticky="nswe") # инфо-режим стоит по умолчанию при запуске программы
+menu_frame.grid(row=0, rowspan=3, column=0, sticky="ns") #расположение зоны основной навигации
+main_frame.grid(row=0,rowspan=3, column=1, sticky="nsew")
+info_frame.grid(row=0,rowspan=3, column=2, sticky="nswe") # инфо-режим стоит по умолчанию при запуске программы
 
 menu_frame.grid_rowconfigure(3,weight=1)
-info_frame.grid_rowconfigure(0,weight=1)
-info_frame.grid_columnconfigure(0, weight=1)
 
 # определение иконок кнопок в активном и неактивном состоянии
 file_path = os.path.dirname(os.path.realpath(__file__))
-print(file_path)
+
 home_img_a = ctk.CTkImage(light_image=Image.open(file_path+"\images\home_w.png"),
                        dark_image=Image.open(file_path+"\images\home_b.png"),
                         size=(24,24))
@@ -230,15 +238,21 @@ loc_button.grid(column=0,row=2, sticky="new")
 appear_button.grid(column=0,row=4, sticky="sew")
 
 charts_frame=ctk.CTkFrame(main_frame,fg_color="#FFFFFF")
+
+name_textbox_text = ctk.StringVar()
+name_textbox_text.set(sa.home_main_text+f"{datetime.today().strftime('%d.%m.%Y')}")
+
 name_textbox = ctk.CTkLabel(main_frame,
                             fg_color='transparent', 
                             font=("Roboto",36),
                             height=43,
-                            text=sa.home_main_text+f"{datetime.today().strftime('%d.%m.%Y')}",
-                            anchor="nw")
+                            textvariable=name_textbox_text,
+                            anchor="nw",
+                            wraplength=900,
+                            justify="left")
+
 name_textbox.grid(row= 0,column=0, sticky="ew",padx=(54,0), pady=(33,0))
 charts_frame.grid(row=1,column=0)
-
 
 main_info_label = ctk.CTkLabel(charts_frame, width=400, height=250, corner_radius=20, fg_color="#D9D9D9")
 ill_chart_frame = ctk.CTkFrame(charts_frame,  width=400, height=250, corner_radius=20, fg_color="#D9D9D9")
@@ -251,30 +265,27 @@ cured_chart_frame.grid(row= 1,column=0, pady=(31,0), padx=(54,0))
 death_chart_frame.grid(row= 1,column=1, pady=(31,0), padx=(54,52))
 
 main_info_label.configure(
-text=sa.frame_home_text,
-wraplength=364,
-font=("Roboto",14),
-anchor="w",
-justify="left")
+    text=sa.frame_home_text,
+    wraplength=364,
+    font=("Roboto",14),
+    anchor="w",
+    justify="left")
 
-loc_opt_menu= ctk.CTkOptionMenu(loc_frame,
+news_textbox = ctk.CTkTextbox(info_frame,font=("Roboto Mono",14), fg_color="#FFFFFF", corner_radius=20)
+set_news_frame()
+
+loc_opt_menu= ctk.CTkOptionMenu(info_frame,
                                  width=225,
                                  height=39, 
                                  values=sa.regions, 
                                  command=option_menu_callback,
-                                 font=("Roboto",15))
-
-last_ten_box = ctk.CTkCheckBox(loc_frame,
+                                 font=("Roboto",15)) #loc_frame
+last_ten_box = ctk.CTkCheckBox(info_frame,
                               width=225,
                               text="Последние 10 дней",
-                              font=("Roboto",16))
+                              font=("Roboto",16))#loc_frame
 
-loc_frame.grid_columnconfigure(0,weight=2)
-
-loc_opt_menu.grid(row=0, column=0, padx=(13,13),pady=(33,0), sticky="ew")
-last_ten_box.grid(row=1, column=0,padx=(13,13), pady=(40,0), sticky="ew")
-
-calendar_frame = ctk.CTkFrame(master=cal_frame, fg_color=sa.basic_color)
+calendar_frame = ctk.CTkFrame(master=info_frame, fg_color=sa.basic_color, width=255) #cal_frame
 
 #создание календаря
 month_menu = ctk.CTkOptionMenu(calendar_frame,values=sa.months, 
@@ -289,5 +300,5 @@ year_menu = ctk.CTkOptionMenu(calendar_frame,
                                  width=90,
                                  command=data_optionmenu_callback)
 set_calendar_frame()
-calendar_frame.grid(row=0, column=0, padx=(10,10),pady=(50,0))
+home_button_callback()
 app.mainloop()
