@@ -1,6 +1,7 @@
-from bs4 import BeautifulSoup
+from datetime import date, datetime
+
 import requests
-from datetime import date, timedelta, datetime
+from bs4 import BeautifulSoup
 
 
 def get_сurrent_data():
@@ -27,13 +28,13 @@ def get_сurrent_data():
                 print(data_all)
                 dict_covid["Регион"] = data.find("a").string
                 dict_covid["Количество заболевших"] = int(data_all[2].contents[0])
-                #dict_covid["Количество заболевших (отн)"] = int(data_all[2].contents[2].contents[0][1:-1])
+                # dict_covid["Количество заболевших (отн)"] = int(data_all[2].contents[2].contents[0][1:-1])
                 dict_covid["Количество умерших"] = int(data_all[3].contents[0])
-                #dict_covid["Количество умерших (отн)"] = int(data_all[3].contents[2].contents[0][1:-1])
+                # dict_covid["Количество умерших (отн)"] = int(data_all[3].contents[2].contents[0][1:-1])
                 dict_covid["Количество выздоровевших"] = int(data_all[4].contents[0])
-                #dict_covid["Количество выздоровевших (отн)"] = int(data_all[4].contents[2].contents[0][1:-1])
+                # dict_covid["Количество выздоровевших (отн)"] = int(data_all[4].contents[2].contents[0][1:-1])
                 dict_covid["Количество оставшихся заболевших"] = int(data_all[5].contents[0])
-                #dict_covid["Количество оставшихся заболевших (отн)"] = int(data_all[5].contents[2].contents[0][1:-1])
+                # dict_covid["Количество оставшихся заболевших (отн)"] = int(data_all[5].contents[2].contents[0][1:-1])
                 result_data.append(dict_covid)
     return result_data
 
@@ -96,7 +97,7 @@ def get_data_by_region(reg, last_10_days=False, day_request=date.today()):
         res = []
         for data_1 in table_reg.find_all("tr")[:11]:
             dict_covid = {}
-            data_obr =  data_1.find_all("td")
+            data_obr = data_1.find_all("td")
             if len(data_obr) != 0:
                 dict_covid["Дата"] = datetime.strptime(data_obr[0].text, "%d.%m.%Y")
                 dict_covid["Количество заболевших"] = int(data_obr[1].text)
@@ -112,7 +113,7 @@ def get_data_by_region(reg, last_10_days=False, day_request=date.today()):
         res = []
         for data_1 in table_reg.find_all("tr"):
             dict_covid = {}
-            data_obr =  data_1.find_all("td")
+            data_obr = data_1.find_all("td")
             if len(data_obr) != 0 and datetime.strptime(data_obr[0].text, "%d.%m.%Y") == day_request:
                 dict_covid["Дата"] = datetime.strptime(data_obr[0].text, "%d.%m.%Y")
                 dict_covid["Количество заболевших"] = int(data_obr[1].text)
