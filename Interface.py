@@ -61,7 +61,8 @@ def appear_button_callback():
     if ctk.get_appearance_mode().lower()=="light":
         ctk.set_appearance_mode("dark")
     else:
-        ctk.set_appearance_mode("light") 
+        ctk.set_appearance_mode("light")
+    sa.basic_color=ctk.ThemeManager.theme["CTkButton"]["fg_color"] 
 
 def option_menu_callback(choice):
     name_textbox_text.set(sa.loc_main_text+choice+" на "+'%(day)02d.%(month)02d.%(year)d' %{'day':sa.day, 'month':sa.month,'year':sa.year})
@@ -112,7 +113,7 @@ def set_calendar_frame():
     for year in range(2019, int(datetime_str("%Y"))+1):
         year_val.append(str(year))
     for i,name in enumerate(sa.week_name):
-        week_label = ctk.CTkLabel(calendar_frame, text=name,font=("Roboto", 12), text_color="white")
+        week_label = ctk.CTkLabel(calendar_frame, text=name,font=("Roboto", 12), text_color=["black","white"])
         week_label.grid(row=1, column=i)
 
     month_menu.grid(row=0, column=0, columnspan=4)
@@ -123,8 +124,8 @@ def set_calendar_frame():
                                state="disabled", 
                                fg_color="transparent",
                                bg_color="transparent",
-                               border_color="black",
-                               
+                               border_color=["black","white"],
+                               text_color=["black","white"]
                                )
         button.grid(row=2+i//7, column=i%7)
     sa.day=int(datetime_str("%d"))
@@ -141,12 +142,13 @@ app = ctk.CTk()
 app.title("COVID Now")   
 app.geometry("1280x720") # временное решение создания размера окна
 
+
 app.grid_rowconfigure((0,1), weight=1)  # определение grid-системы
 app.grid_columnconfigure(2, weight=1)
 
-menu_frame = ctk.CTkFrame(master=app, width=90, fg_color="#D9D9D9", bg_color="#D9D9D9") #создание зоны основной навигации
-main_frame = ctk.CTkFrame(master=app, width=939, fg_color="#FFFFFF", bg_color="#FFFFFF") #создание основной зоны
-info_frame = ctk.CTkFrame(master=app, fg_color="#D9D9D9", bg_color="#D9D9D9") #создание зоны новостей
+menu_frame = ctk.CTkFrame(master=app, width=90, fg_color=["#D9D9D9","#4A4A4A"], bg_color=["#D9D9D9","#4A4A4A"]) #создание зоны основной навигации
+main_frame = ctk.CTkFrame(master=app, width=939, fg_color=["white","black" ], bg_color=["white","black" ]) #создание основной зоны
+info_frame = ctk.CTkFrame(master=app, fg_color=["#D9D9D9","#4A4A4A"], bg_color=["#D9D9D9","#4A4A4A"]) #создание зоны новостей
 
 menu_frame.grid(row=0, rowspan=3, column=0, sticky="ns") #расположение зоны основной навигации
 main_frame.grid(row=0,rowspan=3, column=1, sticky="nsew")
@@ -157,8 +159,9 @@ menu_frame.grid_rowconfigure(3,weight=1)
 # определение иконок кнопок в активном и неактивном состоянии
 file_path = os.path.dirname(os.path.realpath(__file__))
 
-home_img_a = ctk.CTkImage(light_image=Image.open(file_path+"\images\home_w.png"),
-                       dark_image=Image.open(file_path+"\images\home_b.png"),
+ctk.set_default_color_theme(file_path+"\\source\\violet.json")
+home_img_a = ctk.CTkImage(light_image=Image.open(file_path+"\\images\\home_w.png"),
+                       dark_image=Image.open(file_path+"\\images\\home_b.png"),
                         size=(24,24))
 home_img_d = ctk.CTkImage(light_image=Image.open(file_path+"\images\home_b.png"),
                        dark_image=Image.open(file_path+"\images\home_w.png"),
@@ -231,13 +234,15 @@ appear_button = ctk.CTkButton(menu_frame,
                             command=appear_button_callback,
                             image=theme_ing)
 
+sa.basic_color=ctk.ThemeManager.theme["CTkButton"]["fg_color"]
+
 # конфигурация кнопок
 home_button.grid(column=0,row=0, sticky="new")
 cal_button.grid(column=0,row=1, sticky="new")
 loc_button.grid(column=0,row=2, sticky="new")
 appear_button.grid(column=0,row=4, sticky="sew")
 
-charts_frame=ctk.CTkFrame(main_frame,fg_color="#FFFFFF")
+charts_frame=ctk.CTkFrame(main_frame,fg_color=["white","black" ])
 
 name_textbox_text = ctk.StringVar()
 name_textbox_text.set(sa.home_main_text+f"{datetime.today().strftime('%d.%m.%Y')}")
@@ -254,10 +259,10 @@ name_textbox = ctk.CTkLabel(main_frame,
 name_textbox.grid(row= 0,column=0, sticky="ew",padx=(54,0), pady=(33,0))
 charts_frame.grid(row=1,column=0)
 
-main_info_label = ctk.CTkLabel(charts_frame, width=400, height=250, corner_radius=20, fg_color="#D9D9D9")
-ill_chart_frame = ctk.CTkFrame(charts_frame,  width=400, height=250, corner_radius=20, fg_color="#D9D9D9")
-cured_chart_frame = ctk.CTkFrame(charts_frame,  width=400, height=250, corner_radius=20, fg_color="#D9D9D9")
-death_chart_frame = ctk.CTkFrame(charts_frame,  width=400, height=250, corner_radius=20, fg_color="#D9D9D9")
+main_info_label = ctk.CTkLabel(charts_frame, width=400, height=250, corner_radius=20, fg_color=["#D9D9D9","#4A4A4A"])
+ill_chart_frame = ctk.CTkFrame(charts_frame,  width=400, height=250, corner_radius=20, fg_color=["#D9D9D9","#4A4A4A"])
+cured_chart_frame = ctk.CTkFrame(charts_frame,  width=400, height=250, corner_radius=20, fg_color=["#D9D9D9","#4A4A4A"])
+death_chart_frame = ctk.CTkFrame(charts_frame,  width=400, height=250, corner_radius=20, fg_color=["#D9D9D9","#4A4A4A"])
 
 main_info_label.grid(row= 0,column=0,pady=(56,0), padx=(54,0))
 ill_chart_frame.grid(row= 0,column=1, pady=(56,0), padx=(54,52))
@@ -271,7 +276,7 @@ main_info_label.configure(
     anchor="w",
     justify="left")
 
-news_textbox = ctk.CTkTextbox(info_frame,font=("Roboto Mono",14), fg_color="#FFFFFF", corner_radius=20)
+news_textbox = ctk.CTkTextbox(info_frame,font=("Roboto Mono",14), fg_color=["white","black"], corner_radius=20)
 set_news_frame()
 
 loc_opt_menu= ctk.CTkOptionMenu(info_frame,
@@ -285,7 +290,7 @@ last_ten_box = ctk.CTkCheckBox(info_frame,
                               text="Последние 10 дней",
                               font=("Roboto",16))#loc_frame
 
-calendar_frame = ctk.CTkFrame(master=info_frame, fg_color=sa.basic_color, width=255) #cal_frame
+calendar_frame = ctk.CTkFrame(master=info_frame, fg_color=["white", "black"], width=255) #cal_frame
 
 #создание календаря
 month_menu = ctk.CTkOptionMenu(calendar_frame,values=sa.months, 
