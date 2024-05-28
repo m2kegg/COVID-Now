@@ -53,6 +53,7 @@ def loc_button_callback():
     last_ten_box.grid_configure(row=1, column=0, padx=(13,13), pady=(40,0), sticky="")
     calendar_frame.grid_configure(row=2, column=0, padx=(10,10),pady=(50,0))
 
+    last_ten_box.deselect()
     name_textbox_text.set(sa.loc_main_text+loc_opt_menu.get()+" на "+'%(day)02d.%(month)02d.%(year)d' %{'day':sa.day, 'month':sa.month,'year':sa.year})
     main_info_label.configure(text=sa.frame_loc_text)
 
@@ -67,7 +68,8 @@ def appear_button_callback():
 def option_menu_callback(choice):
     name_textbox_text.set(sa.loc_main_text+choice+" на "+'%(day)02d.%(month)02d.%(year)d' %{'day':sa.day, 'month':sa.month,'year':sa.year})
 
-def data_optionmenu_callback(choice):   
+def data_optionmenu_callback(choice):
+  
     year_i = int(year_menu.get())
     month_i = sa.months.index(month_menu.get())+1
     first_info = monthrange(year_i, month_i)
@@ -76,7 +78,7 @@ def data_optionmenu_callback(choice):
         button.configure(state="disabled", text='')
     for i in range(first_info[0], first_info[1]+first_info[0]):
         button = calendar_frame.grid_slaves(row=2+i//7, column=i%7)[0]
-        button.configure(state="normal", text=str(i-first_info[0]+1),
+        button.configure(state=is_day_exist(i-first_info[0]+1), text=str(i-first_info[0]+1),
                         command=lambda m=i-first_info[0]+1:date_button_callback(m))
     for i in range(first_info[1]+first_info[0], 42):
         button = calendar_frame.grid_slaves(row=2+i//7, column=i%7)[0]
@@ -99,7 +101,15 @@ def date_button_callback(choice):
     calendar_frame.grid_slaves(row=2+(sa.day+first_info[0]-1)//7, column=(sa.day+first_info[0]-1)%7)[0].configure(border_width=1)
     name_textbox_text.set(text_tmp+'%(day)02d.%(month)02d.%(year)d' %{'day':sa.day, 'month':sa.month,'year':sa.year})
 
-
+def last_ten_check_callback():
+    if last_ten_box.get():
+        calendar_frame.grid_remove()
+        text_tmp=str(name_textbox_text.get())[:-10]
+        name_textbox_text.set(text_tmp+f"{datetime.today().strftime('%d.%m.%Y')}")
+    else:
+        calendar_frame.grid_configure(row=2, column=0, padx=(10,10),pady=(50,0))
+        text_tmp=str(name_textbox_text.get())[:-10]
+        name_textbox_text.set(text_tmp+'%(day)02d.%(month)02d.%(year)d' %{'day':sa.day, 'month':sa.month,'year':sa.year})
 
 def set_news_frame():
     menu_new_val = [""] # переменная которая будет хранить полученные новости
@@ -136,6 +146,8 @@ def set_calendar_frame():
     month_menu.set(sa.months[int(sa.month)-1])
     data_optionmenu_callback(-1)
 
+def is_day_exist(day: int):
+    return "normal" #функция определяющая имеет ли день статистику или нет, требует доработки
 
 
 app = ctk.CTk()
@@ -288,7 +300,8 @@ loc_opt_menu= ctk.CTkOptionMenu(info_frame,
 last_ten_box = ctk.CTkCheckBox(info_frame,
                               width=225,
                               text="Последние 10 дней",
-                              font=("Roboto",16))#loc_frame
+                              font=("Roboto",16),
+                              command=last_ten_check_callback)#loc_frame
 
 calendar_frame = ctk.CTkFrame(master=info_frame, fg_color=["white", "black"], width=255) #cal_frame
 
