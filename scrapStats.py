@@ -122,3 +122,18 @@ def get_data_by_region(reg, last_10_days=False, day_request=date.today()):
                 dict_covid["Количество оставшихся заболевших"] = int(data_obr[4].text)
                 res.append(dict_covid)
     return res
+
+
+# Получает новости и выводит заголовки в список
+def get_news():
+    res = []
+    for i in range(1, 4):
+        url_main = f"https://объясняем.рф/stopkoronavirus/?PAGEN_1={i}"
+        response = requests.get(url_main)
+        page = BeautifulSoup(response.text, 'html.parser')
+        news_first = page.find_all('a', class_='u-material-card u-material-cards__card')
+        for news in news_first:
+            text = news.find('h3').text.strip()
+            if not "В России за неделю" in text:
+                res.append(text)
+    return res
