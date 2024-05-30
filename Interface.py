@@ -16,7 +16,7 @@ def home_button_callback():
     info_frame.grid_rowconfigure(0,weight=1)
     info_frame.grid_columnconfigure(0, weight=1)
 
-    news_textbox.grid(row=0, column=0, padx=(10,10), pady=(15,15) ,sticky="nsew")
+    news_frame.grid(row=0, column=0 ,sticky="nsew") 
     loc_opt_menu.grid_remove()
     last_ten_box.grid_remove()
     calendar_frame.grid_remove()
@@ -32,7 +32,7 @@ def cal_button_callback():
     info_frame.grid_rowconfigure((0,1,2),weight=0)
     info_frame.grid_columnconfigure(0, weight=1)
 
-    news_textbox.grid_remove()
+    news_frame.grid_remove()
     loc_opt_menu.grid_remove()
     last_ten_box.grid_remove()
     calendar_frame.grid_configure(row=0, column=0, padx=(10,10),pady=(50,0), sticky="n")
@@ -48,7 +48,7 @@ def loc_button_callback():
     info_frame.grid_rowconfigure((0,1,2),weight=0)
     info_frame.grid_columnconfigure(0, weight=1)
 
-    news_textbox.grid_remove()
+    news_frame.grid_remove()
     loc_opt_menu.grid_configure(row=0, column=0, padx=(13,13),pady=(33,0), sticky="ew")
     last_ten_box.grid_configure(row=1, column=0, padx=(13,13), pady=(40,0), sticky="")
     calendar_frame.grid_configure(row=2, column=0, padx=(10,10),pady=(50,0))
@@ -112,10 +112,21 @@ def last_ten_check_callback():
         name_textbox_text.set(text_tmp+'%(day)02d.%(month)02d.%(year)d' %{'day':sa.day, 'month':sa.month,'year':sa.year})
 
 def set_news_frame():
-    menu_new_val = [""] # переменная которая будет хранить полученные новости
-    for tmp_text in menu_new_val:
-        news_textbox.insert(ctk.END,"\n\n"+tmp_text)
-    news_textbox.configure(state="disabled")
+    menu_new_val = ["https://www.yandex.ru/search/?text=ctk+textbox+for+links&lr=213", "Вакцина «Спутник» от коронавируса для подростков может поступить в оборот через два месяца"] # переменная которая будет хранить полученные новости
+    news_frame.grid_columnconfigure(0, weight=1)
+    for i, tmp_text in enumerate(menu_new_val):
+        label = ctk.CTkTextbox(news_frame,
+                            height=120,
+                            
+                            font=("Roboto Mono",13), 
+                            fg_color=["white","black"], 
+                            corner_radius=20,
+                             )
+        label.insert(ctk.END, tmp_text)
+        label.configure(state="disabled")
+        label.grid(row=i, column=0, padx=(10,15), pady=(40,0), sticky='ew')
+
+    
     
 def set_calendar_frame():
     year_val = []
@@ -288,7 +299,7 @@ main_info_label.configure(
     anchor="w",
     justify="left")
 
-news_textbox = ctk.CTkTextbox(info_frame,font=("Roboto Mono",14), fg_color=["white","black"], corner_radius=20)
+news_frame = ctk.CTkScrollableFrame(info_frame)
 set_news_frame()
 
 loc_opt_menu= ctk.CTkOptionMenu(info_frame,
