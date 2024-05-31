@@ -73,6 +73,7 @@ def data_optionmenu_callback(choice):
     year_i = int(year_menu.get())
     month_i = sa.months.index(month_menu.get())+1
     first_info = monthrange(year_i, month_i)
+    day_f, day_s = 0,0
     for i in range(0,first_info[0]):
         button = calendar_frame.grid_slaves(row=2+i//7, column=i%7)[0]
         button.configure(state="disabled", text='')
@@ -80,13 +81,14 @@ def data_optionmenu_callback(choice):
         button = calendar_frame.grid_slaves(row=2+i//7, column=i%7)[0]
         button.configure(state=is_day_exist(i-first_info[0]+1, month_i, year_i), text=str(i-first_info[0]+1),
                         command=lambda m=i-first_info[0]+1:date_button_callback(m ))
+        
     for i in range(first_info[1]+first_info[0], 42):
         button = calendar_frame.grid_slaves(row=2+i//7, column=i%7)[0]
         button.configure(state="disabled", text='')
-    if (choice != -1):
-        date_button_callback(1)
-    else:
-        calendar_frame.grid_slaves(row=2+(sa.day+first_info[0]-1)//7, column=(sa.day+first_info[0]-1)%7)[0].configure(border_width=1)
+    # if (choice != -1):
+    #    date_button_callback(1)
+    #else:
+    #    calendar_frame.grid_slaves(row=2+(sa.day+first_info[0]-1)//7, column=(sa.day+first_info[0]-1)%7)[0].configure(border_width=1)
 
 
 def date_button_callback(choice):
@@ -283,24 +285,25 @@ name_textbox_text.set(sa.home_main_text+f"{datetime.today().strftime('%d.%m.%Y')
 name_textbox = ctk.CTkLabel(main_frame,
                             fg_color='transparent', 
                             font=("Roboto",36),
-                            height=43,
+                            height=86 ,
                             textvariable=name_textbox_text,
                             anchor="nw",
                             wraplength=900,
                             justify="left")
 
-name_textbox.grid(row= 0,column=0, sticky="ew",padx=(54,0), pady=(33,0))
-charts_frame.grid(row=1,column=0)
+main_frame.grid_rowconfigure(2, weight=1)
+name_textbox.grid(row= 0,column=0, rowspan=1,sticky="new",padx=(54,0), pady=(33,0))
+charts_frame.grid(row=1,column=0, rowspan=2, sticky="")
 
 main_info_label = ctk.CTkLabel(charts_frame, width=400, height=250, corner_radius=20, fg_color=["#D9D9D9","#4A4A4A"])
 ill_chart_frame = ctk.CTkFrame(charts_frame,  width=400, height=250, corner_radius=20, fg_color=["#D9D9D9","#4A4A4A"])
 cured_chart_frame = ctk.CTkFrame(charts_frame,  width=400, height=250, corner_radius=20, fg_color=["#D9D9D9","#4A4A4A"])
 death_chart_frame = ctk.CTkFrame(charts_frame,  width=400, height=250, corner_radius=20, fg_color=["#D9D9D9","#4A4A4A"])
 
-main_info_label.grid(row= 0,column=0,pady=(56,0), padx=(54,0))
-ill_chart_frame.grid(row= 0,column=1, pady=(56,0), padx=(54,52))
-cured_chart_frame.grid(row= 1,column=0, pady=(31,0), padx=(54,0))
-death_chart_frame.grid(row= 1,column=1, pady=(31,0), padx=(54,52))
+main_info_label.grid(row= 0,column=0,pady=(0,31), padx=(54,0))
+ill_chart_frame.grid(row= 0,column=1, pady=(0,31), padx=(54,52))
+cured_chart_frame.grid(row= 1,column=0, pady=(0,0), padx=(54,0))
+death_chart_frame.grid(row= 1,column=1, pady=(0,0), padx=(54,52))
 
 main_info_label.configure(
     text=sa.frame_home_text,
@@ -309,7 +312,7 @@ main_info_label.configure(
     anchor="w",
     justify="left")
 
-news_frame = ctk.CTkScrollableFrame(info_frame)
+news_frame = ctk.CTkScrollableFrame(info_frame,fg_color=["#D9D9D9","#4A4A4A"] )
 set_news_frame()
 
 loc_opt_menu= ctk.CTkOptionMenu(info_frame,
