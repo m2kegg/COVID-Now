@@ -78,8 +78,8 @@ def data_optionmenu_callback(choice):
         button.configure(state="disabled", text='')
     for i in range(first_info[0], first_info[1]+first_info[0]):
         button = calendar_frame.grid_slaves(row=2+i//7, column=i%7)[0]
-        button.configure(state=is_day_exist(i-first_info[0]+1), text=str(i-first_info[0]+1),
-                        command=lambda m=i-first_info[0]+1:date_button_callback(m))
+        button.configure(state=is_day_exist(i-first_info[0]+1, month_i, year_i), text=str(i-first_info[0]+1),
+                        command=lambda m=i-first_info[0]+1:date_button_callback(m ))
     for i in range(first_info[1]+first_info[0], 42):
         button = calendar_frame.grid_slaves(row=2+i//7, column=i%7)[0]
         button.configure(state="disabled", text='')
@@ -105,10 +105,10 @@ def last_ten_check_callback():
     if last_ten_box.get():
         calendar_frame.grid_remove()
         text_tmp=str(name_textbox_text.get())[:-10]
-        name_textbox_text.set(text_tmp+f"{datetime.today().strftime('%d.%m.%Y')}")
+        name_textbox_text.set(text_tmp+"последние 10 дней")
     else:
         calendar_frame.grid_configure(row=2, column=0, padx=(10,10),pady=(50,0))
-        text_tmp=str(name_textbox_text.get())[:-10]
+        text_tmp=str(name_textbox_text.get())[:-17]
         name_textbox_text.set(text_tmp+'%(day)02d.%(month)02d.%(year)d' %{'day':sa.day, 'month':sa.month,'year':sa.year})
 
 def set_news_frame():
@@ -131,7 +131,7 @@ def set_news_frame():
 def set_calendar_frame():
     year_val = []
     datetime_str = datetime.today().strftime
-    for year in range(2019, int(datetime_str("%Y"))+1):
+    for year in range(2020, int(datetime_str("%Y"))+1):
         year_val.append(str(year))
     for i,name in enumerate(sa.week_name):
         week_label = ctk.CTkLabel(calendar_frame, text=name,font=("Roboto", 12), text_color=["black","white"])
@@ -157,8 +157,18 @@ def set_calendar_frame():
     month_menu.set(sa.months[int(sa.month)-1])
     data_optionmenu_callback(-1)
 
-def is_day_exist(day: int):
-    return "normal" #функция определяющая имеет ли день статистику или нет, требует доработки
+def is_day_exist(day: int, month: int, year: int):
+
+
+    now_date = datetime(year, month, day)
+    if now_date < datetime(2020, 3,27) or now_date>datetime.today():
+        return "disabled"
+    if now_date <= datetime(2023, 5, 15):
+        return "normal"
+    if now_date > datetime(2023, 5, 16) and now_date.weekday()==1:
+        return "normal"
+
+    return "disabled" #функция определяющая имеет ли день статистику или нет, требует доработки
 
 
 app = ctk.CTk()
