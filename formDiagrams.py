@@ -12,7 +12,7 @@ def make_data_to_dataframe(data):
 
 def animate(frame, df, axis, type_inf):
     axis.clear()
-    sns.barplot(x="Дата", y=type_inf, data=df.iloc[:frame + 1], ax=axis)
+    sns.lineplot(x="Дата", y=type_inf, data=df.iloc[:frame + 1], ax=axis)
     axis.set_xticklabels(axis.get_xticklabels(), rotation=45, ha="right")
     match type_inf:
         case "Количество заболевших":
