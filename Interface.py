@@ -35,7 +35,7 @@ def cal_button_callback():
     news_frame.grid_remove()
     loc_opt_menu.grid_remove()
     last_ten_box.grid_remove()
-    calendar_frame.grid_configure(row=0, column=0, padx=(10,10),pady=(50,0), sticky="n")
+    calendar_frame.grid_configure(row=0, column=0, padx=(10,10),pady=(50,0), sticky="new")
 
     name_textbox_text.set(sa.cal_main_text+'%(day)02d.%(month)02d.%(year)d' %{'day':sa.day, 'month':sa.month,'year':sa.year})
     main_info_label.configure(text=sa.frame_cal_text)
@@ -131,16 +131,17 @@ def set_news_frame():
     
     
 def set_calendar_frame():
+    calendar_frame.grid_columnconfigure((0,1,2,3,4,5,6), weight=1)
     year_val = []
     datetime_str = datetime.today().strftime
     for year in range(2020, int(datetime_str("%Y"))+1):
         year_val.append(str(year))
     for i,name in enumerate(sa.week_name):
         week_label = ctk.CTkLabel(calendar_frame, text=name,font=("Roboto", 12), text_color=["black","white"])
-        week_label.grid(row=1, column=i)
+        week_label.grid(row=1, column=i,sticky='ew' )
 
-    month_menu.grid(row=0, column=0, columnspan=4)
-    year_menu.grid(row=0, column=4, columnspan=3)
+    month_menu.grid(row=0, column=0, columnspan=4, sticky='ew')
+    year_menu.grid(row=0, column=4, columnspan=3, sticky='ew')
     for i in range (0, 42):
         button = ctk.CTkButton(calendar_frame, text="", 
                                width=20, 
@@ -150,7 +151,7 @@ def set_calendar_frame():
                                border_color=["black","white"],
                                text_color=["black","white"]
                                )
-        button.grid(row=2+i//7, column=i%7)
+        button.grid(row=2+i//7, column=i%7,sticky='ew' )
     sa.day=int(datetime_str("%d"))
     sa.month=int(datetime_str("%m"))
     sa.year=int(datetime_str("%Y"))
@@ -176,8 +177,8 @@ def is_day_exist(day: int, month: int, year: int):
 app = ctk.CTk()
 app.title("COVID Now")   
 app.geometry("1280x720") # временное решение создания размера окна
-
-
+#ctk.set_window_scaling(1.0)
+#ctk.set_widget_scaling(1.0)
 app.grid_rowconfigure((0,1), weight=1)  # определение grid-системы
 app.grid_columnconfigure(2, weight=1)
 
