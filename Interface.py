@@ -5,6 +5,12 @@ import samples as sa
 import os
 from calendar import monthrange
 
+
+# Про конфигурацию текста в прямоугольниках - теперь для каждого экрана есть свой собственный Label-объект
+# с настроенной переменной. main_info_label -> main_info_text. При помощи метода .set для text переменных
+# можно динамически менять содержание текста label без метода configure.
+
+
 def home_button_callback():
     home_button.configure(fg_color=sa.basic_color, image=home_img_a)
     cal_button.configure(fg_color="transparent", image=cal_img_d)
@@ -15,6 +21,8 @@ def home_button_callback():
 
     info_frame.grid_rowconfigure(0,weight=1)
     info_frame.grid_columnconfigure(0, weight=1)
+
+    main_info_label.tkraise()
 
     news_frame.grid(row=0, column=0 ,sticky="nsew") 
     loc_opt_menu.grid_remove()
@@ -32,6 +40,8 @@ def cal_button_callback():
     info_frame.grid_rowconfigure((0,1,2),weight=0)
     info_frame.grid_columnconfigure(0, weight=1)
 
+    cal_info_label.tkraise()
+
     news_frame.grid_remove()
     loc_opt_menu.grid_remove()
     last_ten_box.grid_remove()
@@ -41,12 +51,15 @@ def cal_button_callback():
     main_info_label.configure(text=sa.frame_cal_text)
 
 def loc_button_callback():
+    sa.frame_loc_text = "WORKED"
     home_button.configure(fg_color="transparent", image=home_img_d)
     cal_button.configure(fg_color="transparent", image=cal_img_d)
     loc_button.configure(fg_color=sa.basic_color, image=loc_img_a)
 
     info_frame.grid_rowconfigure((0,1,2),weight=0)
     info_frame.grid_columnconfigure(0, weight=1)
+
+    loc_info_label.tkraise()
 
     news_frame.grid_remove()
     loc_opt_menu.grid_configure(row=0, column=0, padx=(13,13),pady=(33,0), sticky="ew")
@@ -177,8 +190,7 @@ def is_day_exist(day: int, month: int, year: int):
 app = ctk.CTk()
 app.title("COVID Now")   
 app.geometry("1280x720") # временное решение создания размера окна
-#ctk.set_window_scaling(1.0)
-#ctk.set_widget_scaling(1.0)
+
 app.grid_rowconfigure((0,1), weight=1)  # определение grid-системы
 app.grid_columnconfigure(2, weight=1)
 
@@ -296,22 +308,57 @@ main_frame.grid_rowconfigure(2, weight=1)
 name_textbox.grid(row= 0,column=0, rowspan=1,sticky="new",padx=(54,0), pady=(33,0))
 charts_frame.grid(row=1,column=0, rowspan=2, sticky="")
 
-main_info_label = ctk.CTkLabel(charts_frame, width=400, height=250, corner_radius=20, fg_color=["#D9D9D9","#4A4A4A"])
+main_info_text= ctk.StringVar()
+loc_info_text= ctk.StringVar()
+cal_info_text= ctk.StringVar()
+main_info_text.set(sa.frame_home_text)
+loc_info_text.set(sa.frame_loc_text)
+cal_info_text.set(sa.frame_cal_text)
+
+main_info_label = ctk.CTkLabel(charts_frame, 
+                               width=400, 
+                               height=250, 
+                               corner_radius=20, 
+                               fg_color=["#D9D9D9","#4A4A4A"], 
+                               textvariable=main_info_text,
+                               wraplength=364,
+                               font=("Roboto",14),
+                               anchor="w",
+                               justify="left")
+loc_info_label = ctk.CTkLabel(charts_frame, 
+                              width=400, 
+                              height=250, 
+                              corner_radius=20, 
+                              fg_color=["#D9D9D9","#4A4A4A"], 
+                              textvariable=loc_info_text,
+                              wraplength=364,
+                               font=("Roboto",14),
+                               anchor="w",
+                               justify="left")
+cal_info_label = ctk.CTkLabel(charts_frame, 
+                              width=400, 
+                              height=250, 
+                              corner_radius=20, 
+                              fg_color=["#D9D9D9","#4A4A4A"], 
+                              textvariable=cal_info_text,
+                              wraplength=364,
+                               font=("Roboto",14),
+                               anchor="w",
+                               justify="left")
+
 ill_chart_frame = ctk.CTkFrame(charts_frame,  width=400, height=250, corner_radius=20, fg_color=["#D9D9D9","#4A4A4A"])
 cured_chart_frame = ctk.CTkFrame(charts_frame,  width=400, height=250, corner_radius=20, fg_color=["#D9D9D9","#4A4A4A"])
 death_chart_frame = ctk.CTkFrame(charts_frame,  width=400, height=250, corner_radius=20, fg_color=["#D9D9D9","#4A4A4A"])
 
+
+
 main_info_label.grid(row= 0,column=0,pady=(0,31), padx=(54,0))
+loc_info_label.grid(row= 0,column=0,pady=(0,31), padx=(54,0))
+cal_info_label.grid(row= 0,column=0,pady=(0,31), padx=(54,0))
+main_info_label.tkraise()
 ill_chart_frame.grid(row= 0,column=1, pady=(0,31), padx=(54,52))
 cured_chart_frame.grid(row= 1,column=0, pady=(0,0), padx=(54,0))
 death_chart_frame.grid(row= 1,column=1, pady=(0,0), padx=(54,52))
-
-main_info_label.configure(
-    text=sa.frame_home_text,
-    wraplength=364,
-    font=("Roboto",14),
-    anchor="w",
-    justify="left")
 
 news_frame = ctk.CTkScrollableFrame(info_frame,fg_color=["#D9D9D9","#4A4A4A"] )
 set_news_frame()
