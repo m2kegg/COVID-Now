@@ -1,4 +1,4 @@
-from scrapStats import get_news, get_data, write_to_db, get_сurrent_data, get_all_data_db
+from scrapStats import *
 from datetime import date
 import locale
 
@@ -9,5 +9,5 @@ def print_hi(name):
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    print(get_all_data_db(date(2024, 4,30)))
+    print(get_today_data_db())
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/

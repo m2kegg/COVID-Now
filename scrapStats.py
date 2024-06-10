@@ -1,14 +1,16 @@
 import locale
 from datetime import date, datetime, timedelta
-from sqlalchemy import create_engine, MetaData, Table, Column, Integer, String, Date, UniqueConstraint, select
+from urllib.error import URLError
+
+from sqlalchemy import create_engine, MetaData, Table, Column, Integer, String, Date, UniqueConstraint, select, column
 from dateutil.parser import parse
+from urllib.request import urlopen
 
 import requests
 from bs4 import BeautifulSoup
 
 
 def get_сurrent_data():
-    locale.setlocale(locale.LC_ALL, 'ru_RU.UTF-8')
     filter = ['Москва', 'Московская область', 'Белгородская область', 'Брянская область', 'Владимирская область',
               'Воронежская область', 'Ивановская область', 'Калужская область',
               'Костромская область', 'Курская область', 'Орловская область',
@@ -97,15 +99,7 @@ def write_to_db(data):
 
     meta = MetaData()
 
-    table_data = Table('covid_data', meta,
-                       Column('id', Integer, primary_key=True),
-                       Column('Регион', String, nullable=False),
-                       Column('Дата', Date, nullable=False),
-                       Column("Количество заболевших", Integer, nullable=False),
-                       Column("Количество умерших", Integer, nullable=False),
-                       Column("Количество выздоровевших", Integer, nullable=False),
-                       Column("Количество оставшихся заболевших", Integer, nullable=False),
-                       )
+    table_data = Table('covid_data', meta, autoload_with=engine)
 
     meta.create_all(engine)
 
@@ -124,15 +118,15 @@ def get_all_data_db(date_chosen):
     return res
 
 
-def get_reg_data_db(reg, date_chosen = date.today(), last_10_days=True):
-    if last_10_days:
+def get_reg_data_db(reg, date_chosen=date.today(), last_10_writes=False):
+    if last_10_writes:
         engine = create_engine('sqlite:///data_covid.db')
         meta = MetaData()
         table = Table('covid_data', meta, autoload_with=engine)
         with engine.connect() as conn:
             query_extra = select(table).order_by(table.c.id).limit(1)
             date_end = conn.execute(query_extra).mappings().all()[0]["Дата"]
-            date_start = date_end - timedelta(days=10)
+            date_start = date_end - timedelta(days=69)
             query = select(table).where(table.c.Дата.between(date_start, date_end)).where(table.c.Регион == reg)
             res = conn.execute(query).mappings().all()
             return res
@@ -145,6 +139,52 @@ def get_reg_data_db(reg, date_chosen = date.today(), last_10_days=True):
             res = conn.execute(query).mappings().all()
             return res
 
+
+# Получение данных на последнее доступное число
+def get_today_data_db():
+    engine = create_engine('sqlite:///data_covid.db')
+    meta = MetaData()
+    table = Table('covid_data', meta, autoload_with=engine)
+    query = select(table.c.Дата).order_by(table.c.Дата.desc()).limit(1)
+    with engine.connect() as conn:
+        res_data = conn.execute(query).mappings().all()[0]["Дата"]
+        query_main = select(table).where(table.c.Дата == res_data)
+        res = conn.execute(query_main).mappings().all()
+        return res
+
+
+def check_has_in_base(data):
+    engine = create_engine('sqlite:///data_covid.db')
+    meta = MetaData()
+    table = Table('covid_data', meta, autoload_with=engine)
+    query = select(table).filter_by(Дата=data[0]["Дата"]).limit(1)
+    with engine.connect() as conn:
+        res = conn.execute(query).mappings().all()
+        if res is None:
+            return False
+        else:
+            return True
+
+
+# Проверка на подключение к интернету
+def perform_check(ctk):
+    if date.today().weekday() == 2:
+        try:
+            urlopen("https://www.google.com", timeout=5)
+            data_last = get_сurrent_data()
+            if not check_has_in_base(data_last):
+                write_to_db(data_last)
+        except URLError as e:
+            warning_window = ctk.CTkTopLevel()
+            warning_window.title("Внимание")
+            warning_window.geometry("300x150")
+
+            label = ctk.CTkLabel(warning_window,
+                                 text="Отсутствует подключение к интернету. Из-за этого данные будут неактуальными")
+            label.pack(pady=20)
+
+            button = ctk.CTkButton(warning_window, text="OK", command=warning_window.destroy)
+            button.pack(pady=10)
 
 
 # def get_data_by_region(reg, last_10_days=False, day_request=date.today()):

@@ -1,26 +1,36 @@
-import customtkinter as ctk
-from PIL import Image
+import os
+from calendar import monthrange
 from datetime import datetime
 
+import customtkinter as ctk
+from PIL import Image
+import pandas as pd
+import seaborn as sns
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 import samples as sa
-import os
-from calendar import monthrange
 from scrapStats import *
 from formDiagrams import *
-import pandas as pd
-
-data_today = pd.DataFrame(get_сurrent_data())
 
 
-def create_and_place_graph(df, y_column, frame):
+sns.set_style('darkgrid')
+
+data_today = pd.DataFrame(get_today_data_db())
+data_all = pd.DataFrame(get_all_data_db(date.today()))
+
+
+def clear_frame(frame):
+    for widget in frame.winfo_children():
+        widget.destroy()
+
+
+def create_and_place_graph(df, y_column, frame, color):
     fig, ax = make_figure()
+    do_graph(df, ax, y_column, color)
+    fig.tight_layout()
     canvas = FigureCanvasTkAgg(fig, master=frame)
     canvas.get_tk_widget().pack(fill="both", expand=1)
-    anim = start_animation(fig, ax, df, y_column)
     canvas.draw()
-    return anim
 
 
 def home_button_callback():
@@ -48,6 +58,18 @@ def home_button_callback():
                                                                  "Количество оставшихся заболевших"].sum()),
                               font=("Roboto", 16))
 
+    df_to_graph = data_all.groupby(["Дата"])[
+        ["Количество заболевших", "Количество умерших", "Количество выздоровевших"]].sum().reset_index()
+
+    clear_frame(ill_chart_frame)
+    clear_frame(death_chart_frame)
+    clear_frame(cured_chart_frame)
+
+    create_and_place_graph(df_to_graph[["Дата", "Количество заболевших"]], "Количество заболевших", ill_chart_frame, "red")
+    create_and_place_graph(df_to_graph[["Дата", "Количество умерших"]], "Количество умерших", death_chart_frame, "black")
+    create_and_place_graph(df_to_graph[["Дата", "Количество выздоровевших"]], "Количество выздоровевших",
+                           cured_chart_frame, "green")
+
 
 def cal_button_callback():
     home_button.configure(fg_color="transparent", image=home_img_d)
@@ -64,14 +86,32 @@ def cal_button_callback():
 
     name_textbox_text.set(
         sa.cal_main_text + '%(day)02d.%(month)02d.%(year)d' % {'day': sa.day, 'month': sa.month, 'year': sa.year})
-    data_on_date = pd.DataFrame(get_data_by_day(datetime(sa.year, sa.month, sa.day)))
-    print(get_data_by_day(datetime(sa.year, sa.month, sa.day)))
-    main_info_label.configure(text=sa.frame_cal_text.format(date_last_call=datetime(sa.year, sa.month, sa.day),
+
+    data_on_date_all = pd.DataFrame(get_all_data_db(datetime(sa.year, sa.month, sa.day)))
+    data_on_date_all['Дата'] = pd.to_datetime(data_on_date_all['Дата'])
+    filter_date = datetime(sa.year, sa.month, sa.day)
+    data_on_date = data_on_date_all[data_on_date_all['Дата'] == filter_date]
+
+    clear_frame(ill_chart_frame)
+    clear_frame(death_chart_frame)
+    clear_frame(cured_chart_frame)
+
+    main_info_label.configure(text=sa.frame_cal_text.format(date_last_call=datetime(sa.year, sa.month, sa.day).strftime('%d.%m.%y'),
                                                             num_diseased=data_on_date["Количество заболевших"].sum(),
-                                                            num_cured=data_on_date["Количество выздроровевших"].sum(),
+                                                            num_cured=data_on_date["Количество выздоровевших"].sum(),
                                                             num_dead=data_on_date["Количество умерших"].sum(),
                                                             num_infected=data_on_date[
                                                                 "Количество оставшихся заболевших"].sum()))
+
+    df_to_graph = data_on_date_all.groupby(["Дата"])[
+        ["Количество заболевших", "Количество умерших", "Количество выздоровевших"]].sum().reset_index()
+
+    create_and_place_graph(df_to_graph[["Дата", "Количество заболевших"]], "Количество заболевших", ill_chart_frame,
+                           "red")
+    create_and_place_graph(df_to_graph[["Дата", "Количество умерших"]], "Количество умерших", death_chart_frame,
+                           "black")
+    create_and_place_graph(df_to_graph[["Дата", "Количество выздоровевших"]], "Количество выздоровевших",
+                           cured_chart_frame, "green")
 
 
 def loc_button_callback():
@@ -226,17 +266,18 @@ def is_day_exist(day: int, month: int, year: int):
 
 app = ctk.CTk()
 app.title("COVID Now")
-app.geometry("1280x720")  # временное решение создания размера окна
+app.geometry("1600x900")  # временное решение создания размера окна
 
 app.grid_rowconfigure((0, 1), weight=1)  # определение grid-системы
 app.grid_columnconfigure(2, weight=1)
+frame_width = 90
 
-menu_frame = ctk.CTkFrame(master=app, width=90, fg_color=["#D9D9D9", "#4A4A4A"],
-                          bg_color=["#D9D9D9", "#4A4A4A"])  #создание зоны основной навигации
-main_frame = ctk.CTkFrame(master=app, width=939, fg_color=["white", "black"],
-                          bg_color=["white", "black"])  #создание основной зоны
-info_frame = ctk.CTkFrame(master=app, fg_color=["#D9D9D9", "#4A4A4A"],
-                          bg_color=["#D9D9D9", "#4A4A4A"])  #создание зоны новостей
+menu_frame = ctk.CTkFrame(master=app, width=int(frame_width), fg_color=("#D9D9D9", "#4A4A4A"),
+                          bg_color=("#D9D9D9", "#4A4A4A"))  #создание зоны основной навигации
+main_frame = ctk.CTkFrame(master=app, width=939, fg_color=("white", "black"),
+                          bg_color=("white", "black"))  #создание основной зоны
+info_frame = ctk.CTkFrame(master=app, fg_color=("#D9D9D9", "#4A4A4A"),
+                          bg_color=("#D9D9D9", "#4A4A4A"))  #создание зоны новостей
 
 menu_frame.grid(row=0, rowspan=3, column=0, sticky="ns")  #расположение зоны основной навигации
 main_frame.grid(row=0, rowspan=3, column=1, sticky="nsew")
@@ -348,17 +389,15 @@ main_frame.grid_rowconfigure(2, weight=1)
 name_textbox.grid(row=0, column=0, rowspan=1, sticky="new", padx=(54, 0), pady=(33, 0))
 charts_frame.grid(row=1, column=0, rowspan=2, sticky="")
 
-main_info_label = ctk.CTkLabel(charts_frame, width=400, height=250, corner_radius=20, fg_color=["#D9D9D9", "#4A4A4A"])
-ill_chart_frame = ctk.CTkFrame(charts_frame, width=400, height=250, corner_radius=20, fg_color=["#D9D9D9", "#4A4A4A"])
-cured_chart_frame = ctk.CTkFrame(charts_frame, width=400, height=250, corner_radius=20, fg_color=["#D9D9D9", "#4A4A4A"])
-death_chart_frame = ctk.CTkFrame(charts_frame, width=400, height=250, corner_radius=20, fg_color=["#D9D9D9", "#4A4A4A"])
+main_info_label = ctk.CTkLabel(charts_frame, width=400, height=275, corner_radius=20, fg_color=["#D9D9D9", "#4A4A4A"])
+ill_chart_frame = ctk.CTkFrame(charts_frame, width=400, height=275, corner_radius=20, fg_color=["#D9D9D9", "#4A4A4A"])
+cured_chart_frame = ctk.CTkFrame(charts_frame, width=400, height=275, corner_radius=20, fg_color=["#D9D9D9", "#4A4A4A"])
+death_chart_frame = ctk.CTkFrame(charts_frame, width=400, height=275, corner_radius=20, fg_color=["#D9D9D9", "#4A4A4A"])
 
 main_info_label.grid(row=0, column=0, pady=(0, 31), padx=(54, 0))
 ill_chart_frame.grid(row=0, column=1, pady=(0, 31), padx=(54, 52))
 cured_chart_frame.grid(row=1, column=0, pady=(0, 0), padx=(54, 0))
 death_chart_frame.grid(row=1, column=1, pady=(0, 0), padx=(54, 52))
-
-
 
 news_frame = ctk.CTkScrollableFrame(info_frame, fg_color=["#D9D9D9", "#4A4A4A"])
 set_news_frame()
@@ -391,4 +430,5 @@ year_menu = ctk.CTkOptionMenu(calendar_frame,
                               command=data_optionmenu_callback)
 set_calendar_frame()
 home_button_callback()
+perform_check(ctk)
 app.mainloop()
