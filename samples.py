@@ -1,4 +1,4 @@
-
+basic_color = ['#3B8ED0', '#1F6AA5']
 home_main_text="Данные o COVID-19 на сегодня, "
 loc_main_text="Данные о COVID-19 в регионе "
 cal_main_text="Данные о COVID-19 на "
