@@ -53,8 +53,9 @@ def cal_button_callback():
     news_frame.grid_remove()
     loc_opt_menu.grid_remove()
     last_ten_box.grid_remove()
-    calendar_frame.grid_configure(
-        row=0, column=0, padx=(10, 10), pady=(50, 0), sticky="new")
+
+    calendar_frame.grid(
+        row=0, column=0, padx=(10, 10), pady=(50, 0))
 
     name_textbox_text.set(sa.cal_main_text+'%(day)02d.%(month)02d.%(year)d' %
                           {'day': sa.day, 'month': sa.month, 'year': sa.year})
@@ -106,38 +107,38 @@ def data_optionmenu_callback(choice):
     first_info = monthrange(year_i, month_i)
     day_f, day_s = 0, 0
     for i in range(0, first_info[0]):
-        label = calendar_frame.grid_slaves(row=2+i//7, column=i % 7)[0]
-        label.configure(state="disabled", text='')
-        label.unbind()
+        button = calendar_frame.grid_slaves(row=2+i//7, column=i % 7)[0]
+        button.configure(state="disabled", text='')
+        # label.unbind("<Button-1>")
     for i in range(first_info[0], first_info[1]+first_info[0]):
-        label = calendar_frame.grid_slaves(row=2+i//7, column=i % 7)[0]
-        label.configure(state=is_day_exist(i-first_info[0]+1, month_i, year_i), text=str(i-first_info[0]+1),
-                        )
-        label.bind("<Button-1>", lambda e, m=i -
-                   first_info[0]+1: date_button_callback(m))
+        button = calendar_frame.grid_slaves(row=2+i//7, column=i % 7)[0]
+        button.configure(state=is_day_exist(i-first_info[0]+1, month_i, year_i), text=str(i-first_info[0]+1),
+                        command=lambda m=i-first_info[0]+1:date_button_callback(m))
+        # label.bind("<Button-1>", lambda e, m=i -
+        #            first_info[0]+1: date_button_callback(m))
 
-        # command=lambda m=i-first_info[0]+1:date_button_callback(m )
+        # 
 
     for i in range(first_info[1]+first_info[0], 42):
-        label = calendar_frame.grid_slaves(row=2+i//7, column=i % 7)[0]
-        label.configure(state="disabled", text='')
-        label.unbind()
-    # if (choice != -1):
-    #    date_button_callback(1)
-    # else:
-    #    calendar_frame.grid_slaves(row=2+(sa.day+first_info[0]-1)//7, column=(sa.day+first_info[0]-1)%7)[0].configure(border_width=1)
+        button = calendar_frame.grid_slaves(row=2+i//7, column=i % 7)[0]
+        button.configure(state="disabled", text='')
+        # label.unbind("<Button-1>")
 
 
 def date_button_callback(choice):
     first_info = monthrange(sa.year, sa.month)
-    # calendar_frame.grid_slaves(row=2+(sa.day+first_info[0]-1)//7, column=(sa.day+first_info[0]-1)%7)
+    button =calendar_frame.grid_slaves(
+        row=2+(sa.day+first_info[0]-1)//7, column=(sa.day+first_info[0]-1) % 7)[0]
+    button.configure(border_width=0)
     # получает нажатую на календаре кнопку даты и разбирает её, записывает в файл констант
     sa.day = choice
     sa.month = sa.months.index(month_menu.get())+1
     sa.year = int(year_menu.get())
     first_info = monthrange(sa.year, sa.month)
     text_tmp = str(name_textbox_text.get())[:-10]
-    # calendar_frame.grid_slaves(row=2+(sa.day+first_info[0]-1)//7, column=(sa.day+first_info[0]-1)%7)
+    button =calendar_frame.grid_slaves(
+        row=2+(sa.day+first_info[0]-1)//7, column=(sa.day+first_info[0]-1) % 7)[0]
+    button.configure(border_width=1)
     name_textbox_text.set(text_tmp+'%(day)02d.%(month)02d.%(year)d' %
                           {'day': sa.day, 'month': sa.month, 'year': sa.year})
 
@@ -190,23 +191,24 @@ def set_calendar_frame():
     month_menu.grid(row=0, column=0, columnspan=4, sticky='ew')
     year_menu.grid(row=0, column=4, columnspan=3, sticky='ew')
     for i in range(0, 42):
-        # button = ctk.CTkButton(calendar_frame, text="",
-        #                        width=20,
-        #                        state="disabled",
-        #                        fg_color="transparent",
-        #                        bg_color="transparent",
-        #                        border_color=["black","white"],
-        #                        text_color=["black","white"]
-        #                        )
-        # button.grid(row=2+i//7, column=i%7,sticky='ew' )
-        label = ctk.CTkLabel(calendar_frame, text="",
-                             width=20,
-                             state="disabled",
-                             fg_color="transparent",
-                             bg_color="transparent",
-                             text_color=["black", "white"]
-                             )
-        label.grid(row=2+i//7, column=i % 7, sticky='ew')
+        button = ctk.CTkButton(calendar_frame, text="",
+                               width=20,
+                               state="disabled",
+                               fg_color="transparent",
+                               bg_color="transparent",
+                               border_color=["black", "white"],
+                               text_color=["black", "white"],
+                               border_width=0,
+                               )
+        button.grid(row=2+i//7, column=i % 7, sticky='ew')
+        # label = ctk.CTkLabel(calendar_frame, text="",
+        #                      width=20,
+        #                      state="disabled",
+        #                      fg_color="transparent",
+        #                      bg_color="transparent",
+        #                      text_color=["black", "white"]
+        #                      )
+        # label.grid(row=2+i//7, column=i % 7, sticky='ew')
     sa.day = int(datetime_str("%d"))
     sa.month = int(datetime_str("%m"))
     sa.year = int(datetime_str("%Y"))
@@ -470,6 +472,10 @@ year_menu = ctk.CTkOptionMenu(calendar_frame,
 set_calendar_frame()
 
 # симуляция нажатия на домашнюю кнопку для установки первого экрана перед запуском
+# news_frame.grid(row=0, column=0, sticky="nsew")
+# loc_opt_menu.grid(row=0, column=0, sticky="nsew")
+# last_ten_box.grid(row=0, column=0, sticky="nsew")
+# calendar_frame.grid(row=0, column=0, sticky="nsew")
 home_button_callback()
 
 # запуск основного цикла программы
