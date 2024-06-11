@@ -4,27 +4,34 @@ loc_main_text="Данные о COVID-19 в регионе "
 cal_main_text="Данные о COVID-19 на "
 frame_home_text="На момент последних данных от {date_last_call} в ЦФО:\n\
 \n\
-— Заболело {num_diseased:,} чел.\n\
-— Выздоровело {num_cured:,} чел.\n\
-— Умерло {num_dead:,} чел. \n\
+— Заболело {num_diseased} чел.\n\
+— Выздоровело {num_cured} чел.\n\
+— Умерло {num_dead} чел. \n\
 \n\
 На данный момент заражено {num_infected:,} чел."
 
 frame_loc_text="На момент последних данных от {date_last_call} в регионе {region}:\n\
 \n\
-— Заболело {num_diseased:,} чел.\n\
-— Выздоровело {num_cured:.,} чел.\n\
-— Умерло {num_dead:,} чел. \n\
+— Заболело {num_diseased} чел.\n\
+— Выздоровело {num_cured} чел.\n\
+— Умерло {num_dead} чел. \n\
 \n\
-На момент {date_last_call} в регионе {region} было заражено {num_infected:,} чел."
+На момент {date_last_call} в регионе {region} было заражено {num_infected} чел."
+
+frame_loc_10_text="За последние 10 дней в регионе {region}:\n\
+\n\
+— Заболело {num_diseased} чел.\n\
+— Выздоровело {num_cured} чел.\n\
+— Умерло {num_dead} чел. \n\
+"
 
 frame_cal_text="На момент последних данных от {date_last_call} в ЦФО:\n\
 \n\
-— Заболело {num_diseased:,} чел.\n\
-— Выздоровело {num_cured:,} чел.\n\
-— Умерло {num_dead:,} чел. \n\
+— Заболело {num_diseased} чел.\n\
+— Выздоровело {num_cured} чел.\n\
+— Умерло {num_dead} чел. \n\
 \n\
-На момент {date_last_call} было заражено {num_infected:,} чел."
+На момент {date_last_call} было заражено {num_infected} чел."
 
 regions=['Москва', 'Московская область', 'Белгородская область', 'Брянская область', 'Владимирская область',
               'Воронежская область', 'Ивановская область', 'Калужская область', 'Костромская область', 'Курская область',
