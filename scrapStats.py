@@ -187,52 +187,6 @@ def perform_check(ctk):
             button.pack(pady=10)
 
 
-# def get_data_by_region(reg, last_10_days=False, day_request=date.today()):
-#     url_main = "https://russian-trade.com/coronavirus-russia/"
-#     url_reg = "https://russian-trade.com"
-#     response = requests.get(url_main)
-#     page = BeautifulSoup(response.text, 'html.parser')  # получили страницу для парсинга
-#     table = page.find('table', class_='grid_exch')
-#     obrab = []
-#     for data in table.find_all('tr')[1:]:
-#         reg_get = data.find_all('td')[1].text
-#         if reg_get == reg:
-#             obrab = data.find_all('td')
-#     if last_10_days:
-#         href = url_reg + obrab[1].find('a')['href']
-#         response_reg = requests.get(href)
-#         reg_data = BeautifulSoup(response_reg.text, 'html.parser')
-#         table_reg = reg_data.find('table')
-#         res = []
-#         for data_1 in table_reg.find_all("tr")[:11]:
-#             dict_covid = {}
-#             data_obr = data_1.find_all("td")
-#             if len(data_obr) != 0:
-#                 dict_covid["Дата"] = datetime.strptime(data_obr[0].text, "%d.%m.%Y")
-#                 dict_covid["Количество заболевших"] = int(data_obr[1].text)
-#                 dict_covid["Количество умерших"] = int(data_obr[2].text)
-#                 dict_covid["Количество выздоровевших"] = int(data_obr[3].text)
-#                 dict_covid["Количество оставшихся заболевших"] = int(data_obr[4].text)
-#                 res.append(dict_covid)
-#     else:
-#         href = url_reg + obrab[1].find('a')['href']
-#         response_reg = requests.get(href)
-#         reg_data = BeautifulSoup(response_reg.text, 'html.parser')
-#         table_reg = reg_data.find('table')
-#         res = []
-#         for data_1 in table_reg.find_all("tr"):
-#             dict_covid = {}
-#             data_obr = data_1.find_all("td")
-#             if len(data_obr) != 0 and datetime.strptime(data_obr[0].text, "%d.%m.%Y") == day_request:
-#                 dict_covid["Дата"] = datetime.strptime(data_obr[0].text, "%d.%m.%Y")
-#                 dict_covid["Количество заболевших"] = int(data_obr[1].text)
-#                 dict_covid["Количество умерших"] = int(data_obr[2].text)
-#                 dict_covid["Количество выздоровевших"] = int(data_obr[3].text)
-#                 dict_covid["Количество оставшихся заболевших"] = int(data_obr[4].text)
-#                 res.append(dict_covid)
-#     return res
-
-
 # Получает новости и выводит заголовки в список
 def get_news():
     res = []
