@@ -5,6 +5,7 @@
 import seaborn as sns
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from screeninfo import get_monitors
 
 def do_graph(df, axis, type_inf, color):
     """
@@ -40,6 +41,11 @@ def do_graph(df, axis, type_inf, color):
         case "Количество выздоровевших":
             axis.set_title("График выздоровлений от COVID-19")
 
+def get_screen_scale():
+    monitor = get_monitors()[0]
+    dpi = monitor.width / monitor.width_mm * 25.4  #
+    return dpi / 96
+
 
 def make_figure(figsize=(5, 3.5)):
     """
@@ -50,6 +56,11 @@ def make_figure(figsize=(5, 3.5)):
     Возвращает фигуру и ось графика
     """
     fig, ax = plt.subplots(figsize=figsize)
+
+    scale = get_screen_scale()
+
+    plt.rc('figure', titlesize=14 * scale * 1.3)
+
     return fig, ax
 
 
