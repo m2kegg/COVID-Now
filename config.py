@@ -1,27 +1,30 @@
+"""
+Модуль, содержащий параметры, которые можно конфигурировать
+"""
+
 # Размер окна
-initial_geometry = "1600x900"
+INITIAL_GEOMETRY = "1600x900"
 
 # Шрифт для новостного блока
-font_news = ("Roboto Mono", 13)
+FONT_NEWS = ("Roboto Mono", 13)
 
 # Шрифт для дат календаря
-font_week = ("Roboto", 12)
+FONT_WEEK = ("Roboto", 12)
 
 # Шрифт для года календаря
-font_year = ("Roboto", 14)
+FONT_YEAR = ("Roboto", 14)
 
 # Шрифт для месяца календаря
-font_month = ("Roboto", 14)
+FONT_MONTH = ("Roboto", 14)
 
 # Шрифт для основной информации
-font_info = ("Roboto", 14)
+FONT_INFO = ("Roboto", 14)
 
 # Шрифт для заголовок
-font_label = ("Roboto", 36)
+FONT_LABEL = ("Roboto", 36)
 
 # Шрифт для чекбокса "Последние 10 дней"
-font_checkbox = ("Roboto", 16)
+FONT_CHECKBOX = ("Roboto", 16)
 
 # Шрифт для меню выбора региона
-font_options = ("Roboto", 15)
-
+FONT_OPTIONS = ("Roboto", 15)

@@ -1,4 +1,4 @@
-from scrapStats import *
+from scrap_stats import *
 from datetime import date
 import locale
 

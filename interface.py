@@ -1,56 +1,53 @@
-'''
- Про конфигурацию текста в прямоугольниках - теперь для каждого экрана есть свой собственный Label-объект
- с настроенной переменной. main_info_label -> main_info_text. При помощи метода .set для text переменных
- можно динамически менять содержание текста label без метода configure.
-'''
 import os
 from calendar import monthrange
-from datetime import datetime
 
 import customtkinter as ctk
 from PIL import Image
-import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 
 import samples as sa
-from scrapStats import *
-from formDiagrams import *
-from misc import *
-from config import *
+import scrap_stats
+import form_diagrams
+import misc
+import config
 
-data_today = pd.DataFrame(get_today_data_db())
-data_all = pd.DataFrame(get_all_data_db(date.today()))
+data_today = pd.DataFrame(scrap_stats.get_today_data_db())
+data_all = pd.DataFrame(scrap_stats.get_all_data_db(scrap_stats.date.today()))
 
 # Проверка на нахождение в location-окне
-is_in_3 = False
+IS_IN_3 = False
 
 # Проверка на выделение чекбокса
-has_checked = False
+HAS_CHECKED = False
 
 # Окно в данный момент
-current_window = ""
+CURRENT_WINDOW = ""
 
-sns.set_style('darkgrid')
+form_diagrams.sns.set_style('darkgrid')
 
 # Расстановка графиков по фреймам
 def place_all_graphs(df_to_graph):
-    clear_frame(ill_chart_frame)
-    clear_frame(death_chart_frame)
-    clear_frame(cured_chart_frame)
+    misc.clear_frame(ill_chart_frame)
+    misc.clear_frame(death_chart_frame)
+    misc.clear_frame(cured_chart_frame)
 
-    create_and_place_graph(df_to_graph[["Дата", "Количество заболевших"]], "Количество заболевших", ill_chart_frame,
+    form_diagrams.create_and_place_graph(df_to_graph[["Дата", "Количество заболевших"]],
+    "Количество заболевших", ill_chart_frame,
                            "red")
-    create_and_place_graph(df_to_graph[["Дата", "Количество умерших"]], "Количество умерших", death_chart_frame,
+    form_diagrams.create_and_place_graph(df_to_graph[["Дата", "Количество умерших"]],
+    "Количество умерших", death_chart_frame,
                            "blue")
-    create_and_place_graph(df_to_graph[["Дата", "Количество выздоровевших"]], "Количество выздоровевших",
-                           cured_chart_frame, "green")
+    form_diagrams.create_and_place_graph(df_to_graph[["Дата", "Количество выздоровевших"]],
+    "Количество выздоровевших",
+                        cured_chart_frame, "green")
 
 
 def home_button_callback():
-    global current_window
-    current_window = "Home"
-    home_button.configure(fg_color=ctk.ThemeManager.theme["CTkButton"]["fg_color"], image=home_img_a)
+    global CURRENT_WINDOW
+    CURRENT_WINDOW = "Home"
+    home_button.configure(fg_color=ctk.ThemeManager.\
+                          theme["CTkButton"]["fg_color"], image=home_img_a)
     cal_button.configure(fg_color="transparent", image=cal_img_d)
     loc_button.configure(fg_color="transparent", image=loc_img_d)
 
@@ -67,25 +64,27 @@ def home_button_callback():
     last_ten_box.grid_remove()
     calendar_frame.grid_remove()
 
-    name_textbox_text.set(sa.home_main_text + f"{datetime.today().strftime('%d.%m.%Y')}")
-    main_info_text.set(sa.frame_home_text.format(date_last_call=datetime.today().strftime('%d.%m.%y'),
-                                                 num_diseased=data_today["Количество заболевших"].sum(),
-                                                 num_cured=data_today["Количество выздоровевших"].sum(),
-                                                 num_dead=data_today["Количество умерших"].sum(),
-                                                 num_infected=data_today[
-                                                     "Количество оставшихся заболевших"].sum()))
-    main_info_label.configure(font=font_info)
+    name_textbox_text.set(sa.HOME_MAIN_TEXT
+                          + f"{misc.datetime.today().strftime('%d.%m.%Y')}")
+    main_info_text.set(sa.FRAME_MAIN_TEXT.\
+                       format(date_last_call=misc.datetime.today().strftime('%d.%m.%y'),
+                              num_diseased=data_today["Количество заболевших"].sum(),
+                              num_cured=data_today["Количество выздоровевших"].sum(),
+                              num_dead=data_today["Количество умерших"].sum(),
+                              num_infected=data_today["Количество оставшихся заболевших"].sum()))
+    main_info_label.configure(font=config.FONT_INFO)
 
     df_to_graph = data_all.groupby(["Дата"])[
-        ["Количество заболевших", "Количество умерших", "Количество выздоровевших"]].sum().reset_index()
+        ["Количество заболевших", "Количество умерших", "Количество выздоровевших"]]\
+        .sum().reset_index()
 
     place_all_graphs(df_to_graph)
 
 
 def cal_button_callback():
-    global is_in_3, current_window
-    is_in_3 = False
-    current_window = "Calendar"
+    global IS_IN_3, CURRENT_WINDOW
+    IS_IN_3 = False
+    CURRENT_WINDOW = "Calendar"
     home_button.configure(fg_color="transparent", image=home_img_d)
     cal_button.configure(
         fg_color=ctk.ThemeManager.theme["CTkButton"]["fg_color"], image=cal_img_a)
@@ -102,9 +101,9 @@ def cal_button_callback():
     calendar_frame.grid_configure(
         row=0, column=0, padx=(10, 10), pady=(50, 0), sticky="new")
 
-    filter_date = datetime(sa.year, sa.month, sa.day)
+    filter_date = misc.datetime(sa.YEAR, sa.MONTH, sa.DAY)
 
-    if filter_date.weekday() != 1 and filter_date >= datetime(2023, 5, 16):
+    if filter_date.weekday() != 1 and filter_date >= misc.datetime(2023, 5, 16):
         day_of_week = filter_date.weekday()
 
         if day_of_week > 1:
@@ -112,39 +111,44 @@ def cal_button_callback():
         else:
             days_to_tuesday = 6
 
-        prev_tuesday = filter_date - timedelta(days=days_to_tuesday)
+        prev_tuesday = filter_date - scrap_stats.timedelta(days=days_to_tuesday)
 
-        sa.day = prev_tuesday.day
-        sa.month = prev_tuesday.month
-        sa.year = prev_tuesday.year
+        sa.DAY = prev_tuesday.day
+        sa.MONTH = prev_tuesday.month
+        sa.YEAR = prev_tuesday.year
 
-    name_textbox_text.set(sa.cal_main_text + '%(day)02d.%(month)02d.%(year)d' %
-                          {'day': sa.day, 'month': sa.month, 'year': sa.year})
+    name_textbox_text.set(sa.CAL_MAIN_TEXT + '%(day)02d.%(month)02d.%(year)d' %
+                          {'day': sa.DAY, 'month': sa.MONTH, 'year': sa.YEAR})
 
-    data_on_date_all = pd.DataFrame(get_all_data_db(datetime(sa.year, sa.month, sa.day)))
+    data_on_date_all = pd.DataFrame(scrap_stats.get_all_data_db
+                                    (misc.datetime(sa.YEAR, sa.MONTH, sa.DAY)))
     data_on_date_all['Дата'] = pd.to_datetime(data_on_date_all['Дата'])
-    data_on_date = data_on_date_all[data_on_date_all['Дата'] == filter_date]
+    data_on_date = data_on_date_all[data_on_date_all['Дата']
+                                    == filter_date]
 
-    cal_info_text.set(sa.frame_cal_text.format(date_last_call=datetime(sa.year, sa.month, sa.day).strftime('%d.%m.%y'),
-                                               num_diseased=format_with_space_separator(
-                                                   data_on_date["Количество заболевших"].sum()),
-                                               num_cured=format_with_space_separator(
-                                                   data_on_date["Количество выздоровевших"].sum()),
-                                               num_dead=format_with_space_separator(
-                                                   data_on_date["Количество умерших"].sum()),
-                                               num_infected=format_with_space_separator(data_on_date[
-                                                                                            "Количество оставшихся заболевших"].sum())))
+    cal_info_text.set(sa.FRAME_CAL_TEXT.\
+                      format(date_last_call=misc.\
+                             datetime(sa.YEAR, sa.MONTH, sa.DAY).strftime('%d.%m.%y'),
+                             num_diseased=misc.format_with_space_separator(
+                                 data_on_date["Количество заболевших"].sum()),
+                             num_cured=misc.format_with_space_separator(
+                                 data_on_date["Количество выздоровевших"].sum()),
+                             num_dead=misc.format_with_space_separator(
+                                 data_on_date["Количество умерших"].sum()),
+                             num_infected=misc.format_with_space_separator(
+                                 data_on_date["Количество оставшихся заболевших"].sum())))
 
     df_to_graph = data_on_date_all.groupby(["Дата"])[
-        ["Количество заболевших", "Количество умерших", "Количество выздоровевших"]].sum().reset_index()
+        ["Количество заболевших", "Количество умерших", "Количество выздоровевших"]]\
+        .sum().reset_index()
 
     place_all_graphs(df_to_graph)
 
 
 def loc_button_callback():
-    global is_in_3, current_window
-    is_in_3 = True
-    current_window = "Location"
+    global IS_IN_3, CURRENT_WINDOW
+    IS_IN_3 = True
+    CURRENT_WINDOW = "Location"
     home_button.configure(fg_color="transparent", image=home_img_d)
     cal_button.configure(fg_color="transparent", image=cal_img_d)
     loc_button.configure(
@@ -165,111 +169,115 @@ def loc_button_callback():
     last_ten_box.deselect()
     last_ten_box.configure(command=last_ten_check_callback)
 
-    name_textbox_text.set(sa.loc_main_text + loc_opt_menu.get() + " на " +
-                          '%(day)02d.%(month)02d.%(year)d' % {'day': sa.day, 'month': sa.month, 'year': sa.year})
+    name_textbox_text.set(sa.LOC_MAIN_TEXT + loc_opt_menu.get() + " на " +
+            '%(day)02d.%(month)02d.%(year)d' % {'day': sa.DAY, 'month': sa.MONTH, 'year': sa.YEAR})
 
     data_on_date = pd.DataFrame(
-        get_reg_data_db(loc_opt_menu.get(), date_chosen=datetime(sa.year, sa.month, sa.day)))
+        scrap_stats.get_reg_data_db(loc_opt_menu.get(),
+        date_chosen=misc.datetime(sa.YEAR, sa.MONTH, sa.DAY)))
 
     data_on_date_chosen = data_on_date.iloc[0]
-    loc_info_text.set(sa.frame_loc_text.format(date_last_call=datetime(sa.year, sa.month, sa.day).strftime('%d.%m.%y'),
-                                               region=loc_opt_menu.get(),
-                                               num_diseased=format_with_space_separator(
-                                                   data_on_date_chosen["Количество заболевших"].sum()),
-                                               num_cured=format_with_space_separator(
-                                                   data_on_date_chosen["Количество выздоровевших"].sum()),
-                                               num_dead=format_with_space_separator(
-                                                   data_on_date_chosen["Количество умерших"].sum()),
-                                               num_infected=format_with_space_separator(data_on_date_chosen[
-                                                                                            "Количество оставшихся заболевших"].sum())))
+    loc_info_text.set(sa.FRAME_LOC_TEXT.\
+                      format(date_last_call=misc.\
+                            datetime(sa.YEAR, sa.MONTH, sa.DAY).strftime('%d.%m.%y'),
+                            region=loc_opt_menu.get(),
+                            num_diseased=misc.format_with_space_separator(
+                                data_on_date_chosen["Количество заболевших"].sum()),
+                            num_cured=misc.format_with_space_separator(
+                                data_on_date_chosen["Количество выздоровевших"].sum()),
+                            num_dead=misc.format_with_space_separator(
+                                data_on_date_chosen["Количество умерших"].sum()),
+                            num_infected=misc.format_with_space_separator(
+                                data_on_date_chosen["Количество оставшихся заболевших"].sum())))
 
     df_to_graph = data_on_date.groupby(["Дата"])[
-        ["Количество заболевших", "Количество умерших", "Количество выздоровевших"]].sum().reset_index()
+        ["Количество заболевших", "Количество умерших",
+         "Количество выздоровевших"]].sum().reset_index()
 
     place_all_graphs(df_to_graph)
 
-    loc_info_label.configure(font=font_info)
+    loc_info_label.configure(font=config.FONT_INFO)
 
 
 # Темная тема, изменение графиков
 def appear_button_callback():
-    global current_window
+    global CURRENT_WINDOW
     if ctk.get_appearance_mode().lower() == "light":
-        sns.set_style('darkgrid')
+        form_diagrams.sns.set_style('darkgrid')
         ctk.set_appearance_mode("dark")
-        plt.rcParams['axes.facecolor'] = 'black'
-        plt.rcParams['figure.facecolor'] = 'black'
-        plt.rcParams['text.color'] = 'white'
-        plt.rcParams['axes.labelcolor'] = 'white'
-        plt.rcParams['xtick.color'] = 'white'
-        plt.rcParams['ytick.color'] = 'white'
-        plt.rcParams['grid.color'] = '#555555'
-        plt.rcParams['axes.edgecolor'] = 'white'
-        match current_window:
-            case "Home":
-                home_button_callback()
-            case "Calendar":
-                cal_button_callback()
-            case "Location":
-                loc_button_callback()
+        form_diagrams.plt.rcParams['axes.facecolor'] = 'black'
+        form_diagrams.plt.rcParams['figure.facecolor'] = 'black'
+        form_diagrams.plt.rcParams['text.color'] = 'white'
+        form_diagrams.plt.rcParams['axes.labelcolor'] = 'white'
+        form_diagrams.plt.rcParams['xtick.color'] = 'white'
+        form_diagrams.plt.rcParams['ytick.color'] = 'white'
+        form_diagrams.plt.rcParams['grid.color'] = '#555555'
+        form_diagrams.plt.rcParams['axes.edgecolor'] = 'white'
+        if CURRENT_WINDOW == "Home":
+            home_button_callback()
+        elif CURRENT_WINDOW == "Calendar":
+            cal_button_callback()
+        else:
+            loc_button_callback()
     else:
         ctk.set_appearance_mode("light")
-        sns.reset_defaults()
-        plt.rcdefaults()
-        sns.set_style('darkgrid')
-        match current_window:
-            case "Home":
-                home_button_callback()
-            case "Calendar":
-                cal_button_callback()
-            case "Location":
-                loc_button_callback()
-    sa.basic_color = ctk.ThemeManager.theme["CTkButton"]["fg_color"]
+        form_diagrams.sns.reset_defaults()
+        form_diagrams.plt.rcdefaults()
+        form_diagrams.sns.set_style('darkgrid')
+        if CURRENT_WINDOW == "Home":
+            home_button_callback()
+        elif CURRENT_WINDOW == "Calendar":
+            cal_button_callback()
+        else:
+            loc_button_callback()
+    sa.BASIC_COLOR = ctk.ThemeManager.theme["CTkButton"]["fg_color"]
 
 
 def option_menu_callback(choice):
-    global has_checked
-    if not has_checked:
-        name_textbox_text.set(sa.loc_main_text + choice + " на " + '%(day)02d.%(month)02d.%(year)d' %
-                              {'day': sa.day, 'month': sa.month, 'year': sa.year})
+    global HAS_CHECKED
+    if not HAS_CHECKED:
+        name_textbox_text.set(sa.LOC_MAIN_TEXT + choice
+                              + " на " + '%(day)02d.%(month)02d.%(year)d' %
+                              {'day': sa.DAY, 'month': sa.MONTH, 'year': sa.YEAR})
         loc_button_callback()
     else:
-        name_textbox_text.set(sa.loc_main_text + choice + " за последние 10 дней")
+        name_textbox_text.set(sa.LOC_MAIN_TEXT + choice + " за последние 10 дней")
 
         data_on_date = pd.DataFrame(
-            get_reg_data_db(loc_opt_menu.get(), last_10_writes=True))
+            scrap_stats.get_reg_data_db(loc_opt_menu.get(), last_10_writes=True))
 
-        loc_info_text.set(sa.frame_loc_10_text.format(region=loc_opt_menu.get(),
-                                                      num_diseased=format_with_space_separator(
-                                                          data_on_date.iloc[0]["Количество заболевших"].sum() -
-                                                          data_on_date.iloc[-1]["Количество заболевших"].sum()),
-                                                      num_cured=format_with_space_separator(
-                                                          data_on_date.iloc[0]["Количество выздоровевших"].sum() -
-                                                          data_on_date.iloc[-1]["Количество выздоровевших"].sum()),
-                                                      num_dead=format_with_space_separator(
-                                                          data_on_date.iloc[0]["Количество умерших"].sum() -
-                                                          data_on_date.iloc[-1]["Количество умерших"].sum())))
+        loc_info_text.set(sa.FRAME_LOC_10_TEXT.\
+                          format(region=loc_opt_menu.get(),
+                                 num_diseased=misc.format_with_space_separator(
+                                     data_on_date.iloc[0]["Количество заболевших"].sum() -
+                                     data_on_date.iloc[-1]["Количество заболевших"].sum()),
+                                 num_cured=misc.format_with_space_separator(
+                                     data_on_date.iloc[0]["Количество выздоровевших"].sum() -
+                                     data_on_date.iloc[-1]["Количество выздоровевших"].sum()),
+                                 num_dead=misc.format_with_space_separator(
+                                     data_on_date.iloc[0]["Количество умерших"].sum() -
+                                     data_on_date.iloc[-1]["Количество умерших"].sum())))
 
         df_to_graph = data_on_date.groupby(["Дата"])[
-            ["Количество заболевших", "Количество умерших", "Количество выздоровевших"]].sum().reset_index()
+            ["Количество заболевших", "Количество умерших",
+             "Количество выздоровевших"]].sum().reset_index()
 
         place_all_graphs(df_to_graph)
 
-        loc_info_label.configure(font=font_info)
+        loc_info_label.configure(font=config.FONT_INFO)
 
 
 def data_optionmenu_callback(choice):
     year_i = int(year_menu.get())
-    month_i = sa.months.index(month_menu.get()) + 1
+    month_i = sa.MONTHS.index(month_menu.get()) + 1
     first_info = monthrange(year_i, month_i)
-    day_f, day_s = 0, 0
     for i in range(0, first_info[0]):
         label = calendar_frame.grid_slaves(row=2 + i // 7, column=i % 7)[0]
         label.configure(state="disabled", text='')
-        # label.unbind()
     for i in range(first_info[0], first_info[1] + first_info[0]):
         label = calendar_frame.grid_slaves(row=2 + i // 7, column=i % 7)[0]
-        label.configure(state=is_day_exist(i - first_info[0] + 1, month_i, year_i), text=str(i - first_info[0] + 1),
+        label.configure(state=misc.is_day_exist(i - first_info[0] + 1, month_i, year_i),
+                        text=str(i - first_info[0] + 1),
                         command=lambda m=i - first_info[0] + 1: date_button_callback(m))
     for i in range(first_info[1] + first_info[0], 42):
         label = calendar_frame.grid_slaves(row=2 + i // 7, column=i % 7)[0]
@@ -277,54 +285,57 @@ def data_optionmenu_callback(choice):
 
 
 def date_button_callback(choice):
-    first_info = monthrange(sa.year, sa.month)
-    calendar_frame.grid_slaves(row=2 + (sa.day + first_info[0] - 1) // 7, column=(sa.day + first_info[0] - 1) % 7)[
-        0].configure(border_width=0)
+    first_info = monthrange(sa.YEAR, sa.MONTH)
+    calendar_frame.grid_slaves(row=2 + (sa.DAY + first_info[0] - 1) // 7,
+                               column=(sa.DAY + first_info[0] - 1) % 7)[
+                               0].configure(border_width=0)
     # получает нажатую на календаре кнопку даты и разбирает её, записывает в файл констант
-    sa.day = choice
-    sa.month = sa.months.index(month_menu.get()) + 1
-    sa.year = int(year_menu.get())
-    first_info = monthrange(sa.year, sa.month)
+    sa.DAY = choice
+    sa.MONTH = sa.MONTHS.index(month_menu.get()) + 1
+    sa.YEAR = int(year_menu.get())
+    first_info = monthrange(sa.YEAR, sa.MONTH)
     text_tmp = str(name_textbox_text.get())[:-10]
     name_textbox_text.set(text_tmp + '%(day)02d.%(month)02d.%(year)d' %
-                          {'day': sa.day, 'month': sa.month, 'year': sa.year})
-    if (is_in_3):
+                          {'day': sa.DAY, 'month': sa.MONTH, 'year': sa.YEAR})
+    if IS_IN_3:
         loc_button_callback()
     else:
         cal_button_callback()
 
 
 def last_ten_check_callback():
-    global has_checked
+    global HAS_CHECKED
     if last_ten_box.get():
-        has_checked = True
+        HAS_CHECKED = True
         calendar_frame.grid_remove()
         text_tmp = str(name_textbox_text.get())[:-10]
         name_textbox_text.set(text_tmp + "последние 10 дней")
 
         data_on_date = pd.DataFrame(
-            get_reg_data_db(loc_opt_menu.get(), last_10_writes=True))
+            scrap_stats.get_reg_data_db(loc_opt_menu.get(), last_10_writes=True))
 
-        loc_info_text.set(sa.frame_loc_10_text.format(region=loc_opt_menu.get(),
-                                                      num_diseased=format_with_space_separator(
-                                                          data_on_date.iloc[0]["Количество заболевших"].sum() -
-                                                          data_on_date.iloc[-1]["Количество заболевших"].sum()),
-                                                      num_cured=format_with_space_separator(
-                                                          data_on_date.iloc[0]["Количество выздоровевших"].sum() -
-                                                          data_on_date.iloc[-1]["Количество выздоровевших"].sum()),
-                                                      num_dead=format_with_space_separator(
-                                                          data_on_date.iloc[0]["Количество умерших"].sum() -
-                                                          data_on_date.iloc[-1]["Количество умерших"].sum())))
+        loc_info_text.set(sa.FRAME_LOC_10_TEXT.\
+                          format(region=loc_opt_menu.get(),
+                                 num_diseased=misc.format_with_space_separator(
+                                      data_on_date.iloc[0]["Количество заболевших"].sum() -
+                                      data_on_date.iloc[-1]["Количество заболевших"].sum()),
+                                 num_cured=misc.format_with_space_separator(
+                                      data_on_date.iloc[0]["Количество выздоровевших"].sum() -
+                                      data_on_date.iloc[-1]["Количество выздоровевших"].sum()),
+                                 num_dead=misc.format_with_space_separator(
+                                      data_on_date.iloc[0]["Количество умерших"].sum() -
+                                      data_on_date.iloc[-1]["Количество умерших"].sum())))
 
         df_to_graph = data_on_date.groupby(["Дата"])[
-            ["Количество заболевших", "Количество умерших", "Количество выздоровевших"]].sum().reset_index()
+            ["Количество заболевших", "Количество умерших", "Количество выздоровевших"]]\
+            .sum().reset_index()
 
         place_all_graphs(df_to_graph)
 
-        loc_info_label.configure(font=font_info)
+        loc_info_label.configure(font=config.FONT_INFO)
 
     else:
-        has_checked = False
+        HAS_CHECKED = False
         calendar_frame.grid_configure(
             row=2, column=0, padx=(10, 10), pady=(50, 0))
         text_tmp = str(name_textbox_text.get())[:-17]
@@ -334,12 +345,12 @@ def last_ten_check_callback():
 
 # функция устанавливающая конфигурацию новостного блока
 def set_news_frame():
-    menu_new_val = get_news()  # переменная которая будет хранить полученные новости
+    menu_new_val = scrap_stats.get_news()  # переменная которая будет хранить полученные новости
     news_frame.grid_columnconfigure(0, weight=1)
     for i, tmp_text in enumerate(menu_new_val):
         label = ctk.CTkTextbox(news_frame,
                                height=120,
-                               font=font_news,
+                               font=config.FONT_NEWS,
                                fg_color=["white", "black"],
                                corner_radius=20,
                                )
@@ -352,12 +363,12 @@ def set_news_frame():
 def set_calendar_frame():
     calendar_frame.grid_columnconfigure((0, 1, 2, 3, 4, 5, 6), weight=1)
     year_val = []
-    datetime_str = datetime.today().strftime
+    datetime_str = misc.datetime.today().strftime
     for year in range(2019, int(datetime_str("%Y")) + 1):
         year_val.append(str(year))
-    for i, name in enumerate(sa.week_name):
+    for i, name in enumerate(sa.WEEK_NAME):
         week_label = ctk.CTkLabel(calendar_frame, text=name,
-                                  font=font_week, text_color=["black", "white"])
+                                  font=config.FONT_WEEK, text_color=["black", "white"])
         week_label.grid(row=1, column=i, sticky='ew')
 
     month_menu.grid(row=0, column=0, columnspan=4, sticky='ew')
@@ -372,12 +383,12 @@ def set_calendar_frame():
                                text_color=["black", "white"]
                                )
         button.grid(row=2 + i // 7, column=i % 7)
-    sa.day = int(datetime_str("%d"))
-    sa.month = int(datetime_str("%m"))
-    sa.year = int(datetime_str("%Y"))
+    sa.DAY = int(datetime_str("%d"))
+    sa.MONTH = int(datetime_str("%m"))
+    sa.YEAR = int(datetime_str("%Y"))
     year_menu.configure(values=year_val)
     year_menu.set(year_val[-1])
-    month_menu.set(sa.months[int(sa.month) - 1])
+    month_menu.set(sa.MONTHS[int(sa.MONTH) - 1])
     data_optionmenu_callback(-1)
 
 
@@ -386,13 +397,13 @@ app = ctk.CTk()
 app.title("COVID Now")
 
 # установка базовых размеров окна
-app.geometry(initial_geometry)
+app.geometry(config.INITIAL_GEOMETRY)
 
 # определение grid-системы для основного окна
 app.grid_rowconfigure((0, 1), weight=1)
 
 app.grid_columnconfigure(2, weight=1)
-frame_width = 90
+FRAME_WIDTH = 90
 
 # создание зоны основной навигации
 menu_frame = ctk.CTkFrame(master=app, width=90, fg_color=["#D9D9D9", "#4A4A4A"], bg_color=[
@@ -416,35 +427,35 @@ menu_frame.grid_rowconfigure(3, weight=1)
 file_path = os.path.dirname(os.path.realpath(__file__))
 
 # установка кастомной фиолетовой темы приложения
-ctk.set_default_color_theme(file_path + "\\source\\violet.json")
+ctk.set_default_color_theme(file_path + r"\source\\violet.json")
 # загрузка изображений для кнопок навигации - в активном и неактивном состоянии
-home_img_a = ctk.CTkImage(light_image=Image.open(file_path + "\\images\\home_w.png"),
+home_img_a = ctk.CTkImage(light_image=Image.open(file_path + r"\images\home_w.png"),
                           dark_image=Image.open(
-                              file_path + "\\images\\home_b.png"),
+                              file_path + r"\images\home_b.png"),
                           size=(24, 24))
-home_img_d = ctk.CTkImage(light_image=Image.open(file_path + "\images\home_b.png"),
+home_img_d = ctk.CTkImage(light_image=Image.open(file_path + r"\images\home_b.png"),
                           dark_image=Image.open(
-                              file_path + "\images\home_w.png"),
+                              file_path + r"\images\home_w.png"),
                           size=(24, 24))
 
-cal_img_a = ctk.CTkImage(light_image=Image.open(file_path + "\images\calendar_w.png"),
+cal_img_a = ctk.CTkImage(light_image=Image.open(file_path + r"\images\calendar_w.png"),
                          dark_image=Image.open(
-                             file_path + "\images\calendar_b.png"),
+                             file_path + r"\images\calendar_b.png"),
                          size=(24, 24))
-cal_img_d = ctk.CTkImage(light_image=Image.open(file_path + "\images\calendar_b.png"),
+cal_img_d = ctk.CTkImage(light_image=Image.open(file_path + r"\images\calendar_b.png"),
                          dark_image=Image.open(
-                             file_path + "\images\calendar_w.png"),
+                             file_path + r"\images\calendar_w.png"),
                          size=(24, 24))
 
-loc_img_a = ctk.CTkImage(light_image=Image.open(file_path + "\images\gps_w.png"),
-                         dark_image=Image.open(file_path + "\images\gps_b.png"),
+loc_img_a = ctk.CTkImage(light_image=Image.open(file_path + r"\images\gps_w.png"),
+                         dark_image=Image.open(file_path + r"\images\gps_b.png"),
                          size=(24, 24))
-loc_img_d = ctk.CTkImage(light_image=Image.open(file_path + "\images\gps_b.png"),
-                         dark_image=Image.open(file_path + "\images\gps_w.png"),
+loc_img_d = ctk.CTkImage(light_image=Image.open(file_path + r"\images\gps_b.png"),
+                         dark_image=Image.open(file_path + r"\images\gps_w.png"),
                          size=(24, 24))
 
-theme_ing = ctk.CTkImage(light_image=Image.open(file_path + "\images\light.png"),
-                         dark_image=Image.open(file_path + "\images\moon.png"),
+theme_ing = ctk.CTkImage(light_image=Image.open(file_path + r"\images\light.png"),
+                         dark_image=Image.open(file_path + r"\images\moon.png"),
                          size=(24, 24))
 
 # определение кнопок навигации
@@ -504,11 +515,11 @@ appear_button.grid(column=0, row=4, sticky="sew")
 
 name_textbox_text = ctk.StringVar()
 name_textbox_text.set(
-    sa.home_main_text + f"{datetime.today().strftime('%d.%m.%Y')}")
+    sa.HOME_MAIN_TEXT + f"{misc.datetime.today().strftime('%d.%m.%Y')}")
 
 name_textbox = ctk.CTkLabel(main_frame,
                             fg_color='transparent',
-                            font=font_label,
+                            font=config.FONT_LABEL,
                             height=86,
                             textvariable=name_textbox_text,
                             anchor="nw",
@@ -528,9 +539,9 @@ charts_frame.grid(row=1, column=0, rowspan=2, sticky="")
 main_info_text = ctk.StringVar()
 loc_info_text = ctk.StringVar()
 cal_info_text = ctk.StringVar()
-main_info_text.set(sa.frame_home_text)
-loc_info_text.set(sa.frame_loc_text)
-cal_info_text.set(sa.frame_cal_text)
+main_info_text.set(sa.FRAME_MAIN_TEXT)
+loc_info_text.set(sa.FRAME_LOC_TEXT)
+cal_info_text.set(sa.FRAME_CAL_TEXT)
 main_info_label = ctk.CTkLabel(charts_frame,
                                width=400,
                                height=250,
@@ -538,7 +549,7 @@ main_info_label = ctk.CTkLabel(charts_frame,
                                fg_color=["#D9D9D9", "#4A4A4A"],
                                textvariable=main_info_text,
                                wraplength=364,
-                               font=font_info,
+                               font=config.FONT_INFO,
                                anchor="w",
                                justify="left")
 loc_info_label = ctk.CTkLabel(charts_frame,
@@ -548,7 +559,7 @@ loc_info_label = ctk.CTkLabel(charts_frame,
                               fg_color=["#D9D9D9", "#4A4A4A"],
                               textvariable=loc_info_text,
                               wraplength=364,
-                              font=font_info,
+                              font=config.FONT_INFO,
                               anchor="w",
                               justify="left")
 cal_info_label = ctk.CTkLabel(charts_frame,
@@ -558,7 +569,7 @@ cal_info_label = ctk.CTkLabel(charts_frame,
                               fg_color=["#D9D9D9", "#4A4A4A"],
                               textvariable=cal_info_text,
                               wraplength=364,
-                              font=font_info,
+                              font=config.FONT_INFO,
                               anchor="w",
                               justify="left")
 
@@ -593,15 +604,15 @@ set_news_frame()
 loc_opt_menu = ctk.CTkOptionMenu(info_frame,
                                  width=225,
                                  height=39,
-                                 values=sa.regions,
+                                 values=sa.REGIONS,
                                  command=option_menu_callback,
-                                 font=font_options)
+                                 font=config.FONT_OPTIONS)
 
 # определение чекбокса для отключения/включения календаря
 last_ten_box = ctk.CTkCheckBox(info_frame,
                                width=225,
                                text="Последние 10 дней",
-                               font=font_checkbox,
+                               font=config.FONT_CHECKBOX,
                                command=last_ten_check_callback)
 
 # определение frame-объекта для размещения виджета календаря
@@ -610,14 +621,14 @@ calendar_frame = ctk.CTkFrame(master=info_frame, fg_color=[
 
 # создание элементов календаря, отвечающих за месяц и год
 
-month_menu = ctk.CTkOptionMenu(calendar_frame, values=sa.months,
-                               font=font_month,
+month_menu = ctk.CTkOptionMenu(calendar_frame, values=sa.MONTHS,
+                               font=config.FONT_MONTH,
                                corner_radius=0,
                                width=120,
                                command=data_optionmenu_callback)
 year_menu = ctk.CTkOptionMenu(calendar_frame,
                               values=[],
-                              font=font_year,
+                              font=config.FONT_YEAR,
                               corner_radius=0,
                               width=90,
                               command=data_optionmenu_callback)
@@ -626,5 +637,5 @@ set_calendar_frame()
 # симуляция нажатия на домашнюю кнопку для установки первого экрана перед запуском
 home_button_callback()
 # запуск основного цикла программы
-perform_check(ctk)
+scrap_stats.perform_check(ctk)
 app.mainloop()
