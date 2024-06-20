@@ -209,7 +209,7 @@ def get_today_data_db():
 
     Возвращает список словарей с ключами
     "Дата" (datetime), "Регион" (строка), "Количество заболевших" (число),
-    "Количество умерших" (число),  "Количество оставшихся заболевших" (число)
+    "Количество умерших" (число), "Количество оставшихся заболевших" (число)
     """
     engine = create_engine('sqlite:///data_covid.db')
     meta = MetaData()
@@ -221,6 +221,21 @@ def get_today_data_db():
         res = conn.execute(query_main).mappings().all()
         return res
 
+def get_two_dates_db(reg, date_first, date_second):
+    """
+    Функция, получающая данные из базы данных по региону между двумя датами
+
+    Возвращает список словарей с ключами
+    "Дата" (datetime), "Регион" (строка), "Количество заболевших" (число),
+    "Количество умерших" (число), "Количество оставшихся заболевших" (число)
+    """
+    engine = create_engine('sqlite:///data_covid.db')
+    meta = MetaData()
+    table = Table('covid_data', meta, autoload_with=engine)
+    query = select(table).where(date_first <= table.c.Дата).where(table.c.Дата <= date_second).where(table.c.Регион == reg)
+    with engine.connect() as conn:
+        res = conn.execute(query).mappings().all()
+        return res
 
 def check_has_in_base(data):
     """
@@ -238,7 +253,7 @@ def check_has_in_base(data):
     query = select(table).filter_by(Дата=data[0]["Дата"]).limit(1)
     with engine.connect() as conn:
         res = conn.execute(query).mappings().all()
-        if res is None:
+        if len(res) == 0:
             return False
         return True
 
@@ -250,7 +265,7 @@ def perform_check(ctk):
     Параметр ctk - объект вида CTk (необходим для отображения уведомления
     об отсутствии подключения к интернету
     """
-    if date.today().weekday() == 2:
+    if date.today().weekday() == 4:
         try:
             urlopen("https://www.google.com", timeout=5)
             data_last = get_current_data()

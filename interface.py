@@ -1,16 +1,19 @@
 import os
 from calendar import monthrange
+from datetime import datetime
 
 import customtkinter as ctk
 from PIL import Image
 import pandas as pd
 import seaborn as sns
+import tkinter as tk
 
 import samples as sa
 import scrap_stats
 import form_diagrams
 import misc
 import config
+
 
 data_today = pd.DataFrame(scrap_stats.get_today_data_db())
 data_all = pd.DataFrame(scrap_stats.get_all_data_db(scrap_stats.date.today()))
@@ -46,6 +49,7 @@ def place_all_graphs(df_to_graph):
 def home_button_callback():
     global CURRENT_WINDOW
     CURRENT_WINDOW = "Home"
+
     home_button.configure(fg_color=ctk.ThemeManager.\
                           theme["CTkButton"]["fg_color"], image=home_img_a)
     cal_button.configure(fg_color="transparent", image=cal_img_d)
@@ -63,7 +67,8 @@ def home_button_callback():
     loc_opt_menu.grid_remove()
     last_ten_box.grid_remove()
     calendar_frame.grid_remove()
-
+    show_periond_box.deselect()
+    period_frame.grid_remove()
     name_textbox_text.set(sa.HOME_MAIN_TEXT
                           + f"{misc.datetime.today().strftime('%d.%m.%Y')}")
     main_info_text.set(sa.FRAME_MAIN_TEXT.\
@@ -98,6 +103,9 @@ def cal_button_callback():
     news_frame.grid_remove()
     loc_opt_menu.grid_remove()
     last_ten_box.grid_remove()
+    show_periond_box.grid_remove()
+    show_periond_box.deselect()
+    period_frame.grid_remove()
     calendar_frame.grid_configure(
         row=0, column=0, padx=(10, 10), pady=(50, 0), sticky="new")
 
@@ -112,7 +120,7 @@ def cal_button_callback():
             days_to_tuesday = 6
 
         prev_tuesday = filter_date - scrap_stats.timedelta(days=days_to_tuesday)
-
+        filter_date = prev_tuesday
         sa.DAY = prev_tuesday.day
         sa.MONTH = prev_tuesday.month
         sa.YEAR = prev_tuesday.year
@@ -154,7 +162,7 @@ def loc_button_callback():
     loc_button.configure(
         fg_color=ctk.ThemeManager.theme["CTkButton"]["fg_color"], image=loc_img_a)
 
-    info_frame.grid_rowconfigure((0, 1, 2), weight=0)
+    info_frame.grid_rowconfigure((0, 1, 2, 3), weight=0)
     info_frame.grid_columnconfigure(0, weight=1)
 
     loc_info_label.tkraise()
@@ -165,7 +173,11 @@ def loc_button_callback():
         13, 13), pady=(33, 0), sticky="ew")
     last_ten_box.grid_configure(
         row=1, column=0, padx=(13, 13), pady=(40, 0), sticky="")
-    calendar_frame.grid_configure(row=2, column=0, padx=(10, 10), pady=(50, 0), sticky="new")
+    show_periond_box.grid_configure(
+        row=2, column=0, padx=(13, 13), pady=(40, 0), sticky="")
+    calendar_frame.grid_configure(
+        row=3, column=0, padx=(10, 10), pady=(50, 0), sticky="new")
+
     last_ten_box.deselect()
     last_ten_box.configure(command=last_ten_check_callback)
 
@@ -236,10 +248,17 @@ def appear_button_callback():
 def option_menu_callback(choice):
     global HAS_CHECKED
     if not HAS_CHECKED:
-        name_textbox_text.set(sa.LOC_MAIN_TEXT + choice
-                              + " на " + '%(day)02d.%(month)02d.%(year)d' %
-                              {'day': sa.DAY, 'month': sa.MONTH, 'year': sa.YEAR})
-        loc_button_callback()
+        if show_periond_box.get():
+            name_textbox_text.set(sa.LOC_MAIN_TEXT + choice
+                                  + " на " + '%(day)02d.%(month)02d.%(year)d' %
+                                  {'day': sa.DAY, 'month': sa.MONTH, 'year': sa.YEAR})
+            loc_button_callback()
+            calendar_frame.grid_remove()
+        else:
+            name_textbox_text.set(sa.LOC_MAIN_TEXT + choice
+                                  + " на " + '%(day)02d.%(month)02d.%(year)d' %
+                                  {'day': sa.DAY, 'month': sa.MONTH, 'year': sa.YEAR})
+            loc_button_callback()
     else:
         name_textbox_text.set(sa.LOC_MAIN_TEXT + choice + " за последние 10 дней")
 
@@ -295,6 +314,8 @@ def date_button_callback(choice):
     sa.YEAR = int(year_menu.get())
     first_info = monthrange(sa.YEAR, sa.MONTH)
     text_tmp = str(name_textbox_text.get())[:-10]
+    calendar_frame.grid_slaves(row=2 + (sa.DAY + first_info[0] - 1) // 7, column=(sa.DAY + first_info[
+        0] - 1) % 7)[0].configure(border_width=1)
     name_textbox_text.set(text_tmp + '%(day)02d.%(month)02d.%(year)d' %
                           {'day': sa.DAY, 'month': sa.MONTH, 'year': sa.YEAR})
     if IS_IN_3:
@@ -308,8 +329,16 @@ def last_ten_check_callback():
     if last_ten_box.get():
         HAS_CHECKED = True
         calendar_frame.grid_remove()
-        text_tmp = str(name_textbox_text.get())[:-10]
+        period_frame.grid_remove()
+        # действуем в зависимости от того, был ли выбран другой чекбокс
+        if (show_periond_box.get()):
+            text_tmp = str(name_textbox_text.get())
+            if text_tmp[len(text_tmp) - 1] == ']':  # если в тексте был диапазон
+                text_tmp = text_tmp[:-24]
+        else:
+            text_tmp = str(name_textbox_text.get())[:-10]
         name_textbox_text.set(text_tmp + "последние 10 дней")
+        show_periond_box.deselect()  # отменяем выбор другого чекбокса
 
         data_on_date = pd.DataFrame(
             scrap_stats.get_reg_data_db(loc_opt_menu.get(), last_10_writes=True))
@@ -337,10 +366,95 @@ def last_ten_check_callback():
     else:
         HAS_CHECKED = False
         calendar_frame.grid_configure(
-            row=2, column=0, padx=(10, 10), pady=(50, 0))
+            row=3, column=0, padx=(10, 10), pady=(50, 0))
         text_tmp = str(name_textbox_text.get())[:-17]
+        name_textbox_text.set(text_tmp + '%(day)02d.%(month)02d.%(year)d' %
+                              {'day': sa.DAY, 'month': sa.MONTH, 'year': sa.YEAR})
 
         loc_button_callback()
+
+def show_period_ckeck_callback():
+    if show_periond_box.get():
+        text_tmp = ''
+        calendar_frame.grid_remove()
+        # действуем в зависимости от того, был ли активен другой чекбокс
+        if last_ten_box.get():
+            text_tmp = str(name_textbox_text.get())[:-17]
+        else:
+            text_tmp = str(name_textbox_text.get())[:-10]
+        last_ten_box.deselect()  # отменяем выделение другого чекбокса
+        name_textbox_text.set(text_tmp)
+
+        period_frame.grid_configure(row=3, column=0, padx=(
+            10, 10), pady=(50, 0), sticky='ew')
+    else:
+        period_frame.grid_remove()
+        text_tmp = str(name_textbox_text.get())
+        # если в тексте поля был диапазон, стираем его
+        if text_tmp[len(text_tmp)-1] == ']':
+            text_tmp = text_tmp[:-24]
+        name_textbox_text.set(text_tmp+'%(day)02d.%(month)02d.%(year)d' %
+                              {'day': sa.DAY, 'month': sa.MONTH, 'year': sa.YEAR})
+        calendar_frame.grid_configure(
+            row=3, column=0, padx=(10, 10), pady=(50, 0), sticky='ew')
+
+
+def period_button_callback():
+    year_1 = int(period_frame.grid_slaves(row=1, column=0)[0].get())
+    month_1 = sa.MONTHS.index(
+        period_frame.grid_slaves(row=1, column=1)[0].get())+1
+
+    year_2 = int(period_frame.grid_slaves(row=3, column=0)[0].get())
+    month_2 = sa.MONTHS.index(
+        period_frame.grid_slaves(row=3, column=1)[0].get())+1
+
+    day_1 = (period_frame.grid_slaves(row=1, column=2)[0].get())
+    day_2 = (period_frame.grid_slaves(row=3, column=2)[0].get())
+
+    # проверяем корректность 1 дня
+    flag_1 = check_entry_day(day_1, month_1, year_1)
+    # проверяем корректность 2 дня
+    flag_2 = check_entry_day(day_2, month_2, year_2)
+
+    day_fir = datetime(year_1, month_1, int(day_1))
+    day_sec = datetime(year_2, month_2, int(day_2))
+
+    #если оба дня корректны и они правильно расположены
+    if flag_1 and flag_2 and datetime(year_1, month_1, int(day_1)) < datetime(year_2, month_2, int(day_2)):
+        day_1 = int(day_1)
+        day_2 = int(day_2)
+
+        data = scrap_stats.get_two_dates_db(loc_opt_menu.get(), day_fir, day_sec)
+
+        df_reg = pd.DataFrame(data)
+
+        place_all_graphs(df_reg)
+
+        text_tmp = str(name_textbox_text.get())
+        if text_tmp[len(text_tmp)-1] == ']':
+            text_tmp = text_tmp[:-24]
+        name_textbox_text.set(text_tmp +
+                              '[%(d1)02d.%(m1)02d.%(y1)d, %(d2)02d.%(m2)02d.%(y2)d]'
+                              % {'d1': day_1, 'm1': month_1, 'y1': year_1,
+                                 'd2': day_2, 'm2': month_2, 'y2': year_2})
+        #
+        # отклик на полученный период
+        #
+    else:
+        button = period_frame.grid_slaves(row=4, column=0)[0]
+        button.configure(text='Неправильные данные')
+        # без нарушения главного цикла, надпись на кнопке будет изменена на 4 секунды
+        button.after(4000, lambda: button.configure(text='Найти данные'))
+
+
+def validation_command(input):
+    # команда валидации маски ввода
+    if input.isdigit():
+        return True
+    elif input == "":
+        return True
+    else:
+        return False
 
 
 # функция устанавливающая конфигурацию новостного блока
@@ -390,6 +504,80 @@ def set_calendar_frame():
     year_menu.set(year_val[-1])
     month_menu.set(sa.MONTHS[int(sa.MONTH) - 1])
     data_optionmenu_callback(-1)
+
+def set_period_frame():
+    reg = app.register(validation_command)  # создание команды для маски ввода
+    period_frame.grid_rowconfigure(0, weight=1)
+    period_frame.grid_columnconfigure((0, 1, 2), weight=1)
+
+    label_first = ctk.CTkLabel(period_frame,
+                               text="Первая дата",
+                               font=("Roboto", 16),
+                               text_color=["black", "white"],
+                               anchor="nw",
+                               justify='left'
+                               )
+    label_second = ctk.CTkLabel(period_frame,
+                                text="Вторая дата",
+                                font=("Roboto", 16),
+                                text_color=["black", "white"],
+                                anchor="nw",
+                                justify='left')
+    # устанавливаем тот же список что и у календаря
+    year_value = year_menu.cget("values")
+    year_1 = ctk.CTkOptionMenu(
+        period_frame, width=60, values=year_value, corner_radius=5)
+    month_1 = ctk.CTkOptionMenu(
+        period_frame, width=60, values=sa.MONTHS, corner_radius=5)
+    year_1.set(year_value[-1])  # устанавливаем дефолтные значения
+    month_1.set(sa.MONTHS[int(sa.MONTH)-1])
+
+    year_2 = ctk.CTkOptionMenu(
+        period_frame, width=60, values=year_value, corner_radius=5)
+    month_2 = ctk.CTkOptionMenu(
+        period_frame, width=60, values=sa.MONTHS, corner_radius=5)
+    year_2.set(year_value[-1])
+    month_2.set(sa.MONTHS[int(sa.MONTH)-1])
+
+    # дни вводятся через поля с маской ввода
+    day_e_1 = ctk.CTkEntry(period_frame, width=50, validate="key",
+                           validatecommand=(reg, '%P'), corner_radius=5)
+    day_e_2 = ctk.CTkEntry(period_frame, width=50, validate="key",
+                           validatecommand=(reg, '%P'), corner_radius=5)
+
+    label_first.grid(row=0, column=0, columnspan=3,
+                     sticky="ew", pady=(15, 5), padx=10)
+    label_second.grid(row=2, column=0, columnspan=3,
+                      sticky="ew", pady=(5, 5), padx=10)
+    year_1.grid(row=1, column=0, pady=(0, 10), padx=(10, 5), sticky="ew")
+    month_1.grid(row=1, column=1, pady=(0, 10), sticky="ew")
+    day_e_1.grid(row=1, column=2, pady=(0, 10), padx=(5, 10), sticky="ew")
+
+    year_2.grid(row=3, column=0, pady=(0, 10), padx=(10, 5), sticky="ew")
+    month_2.grid(row=3, column=1, pady=(0, 10), sticky="ew")
+    day_e_2.grid(row=3, column=2, pady=(0, 10), padx=(5, 10), sticky="ew")
+
+    # устанавливаем дефолтные значения
+    day_e_1.insert(ctk.END, sa.DAY)
+    day_e_2.insert(ctk.END, sa.DAY)
+    # кнопка для вычислений
+    period_button = ctk.CTkButton(
+        period_frame, text='Найти данные', command=period_button_callback)
+    period_button.grid(row=4, column=0, columnspan=3,
+                       padx=(10, 10), pady=(0, 10), sticky="ew")
+
+def check_entry_day(day: str, month: int, year: int):
+    # функция проверяет корректен ли день в поле ввода
+    if day == "":
+        return False
+    day_i = int(day)
+    if day_i > monthrange(year, month)[1]:
+        return False
+    if day_i < 1:
+        return False
+    if datetime(year, month, day_i) > datetime.today():
+        return False
+    return True
 
 
 # создание объекта приложения
@@ -632,10 +820,19 @@ year_menu = ctk.CTkOptionMenu(calendar_frame,
                               corner_radius=0,
                               width=90,
                               command=data_optionmenu_callback)
-set_calendar_frame()
+# создание меню выбора периода
+show_periond_box = ctk.CTkCheckBox(info_frame,
+                                   width=225,
+                                   text="Указать период",
+                                   font=("Roboto", 16),
+                                   command=show_period_ckeck_callback)
 
-# симуляция нажатия на домашнюю кнопку для установки первого экрана перед запуском
+period_frame = ctk.CTkFrame(master=info_frame, fg_color=[
+                            "white", "black"], width=255, height=525,)
+
+
+set_calendar_frame()
+set_period_frame()
 home_button_callback()
-# запуск основного цикла программы
 scrap_stats.perform_check(ctk)
 app.mainloop()

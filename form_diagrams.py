@@ -78,10 +78,10 @@ def create_and_place_graph(df, y_column, frame, color):
 
     Параметр color - цвет графика (строка, задаётся через HEX или названием цвета на англ.
     """
-    frame_width = frame.winfo_width()
-    frame_height = frame.winfo_height()
-    font_size = get_font_size(frame_width, frame_height) * 1.3
-    fig, ax = make_figure(figsize=(frame_width / 100, frame_height / 100))
+    frame_width = 400
+    frame_height = 250
+    font_size = get_font_size(frame_width, frame_height) * 1.8
+    fig, ax = make_figure(figsize=(frame_width / 85, frame_height / 85))
     do_graph(df, ax, y_column, color, font_size)
     fig.tight_layout()
     canvas = FigureCanvasTkAgg(fig, master=frame)
