@@ -6,21 +6,29 @@ BASIC_COLOR = ['#3B8ED0', '#1F6AA5']
 HOME_MAIN_TEXT = "Данные o COVID-19 на сегодня, "
 LOC_MAIN_TEXT = "Данные о COVID-19 в регионе "
 CAL_MAIN_TEXT = "Данные о COVID-19 на "
+
+PERIOD_MAIN_TEXT = "На промежутке дат от {date_first} до {date_last} в регионе {region}:\n\
+\n\
+— Заболело {num_diseased} чел.\n\
+— Выздоровело {num_cured} чел.\n\
+— Умерло {num_dead} чел. \n\
+"
+
 FRAME_MAIN_TEXT = "На момент последних данных от {date_last_call} в ЦФО:\n\
 \n\
 — Заболело {num_diseased} чел.\n\
 — Выздоровело {num_cured} чел.\n\
 — Умерло {num_dead} чел. \n\
 \n\
-На данный момент заражено {num_infected:,} чел."
+На данный момент заражено {num_infected} чел."
 
-FRAME_LOC_TEXT = "На момент последних данных от {date_last_call} в регионе {region}:\n\
+FRAME_LOC_TEXT = "На момент последних данных от {date_last_call} в ЦФО:\n\
 \n\
 — Заболело {num_diseased} чел.\n\
 — Выздоровело {num_cured} чел.\n\
 — Умерло {num_dead} чел. \n\
 \n\
-На момент {date_last_call} в регионе {region} было заражено {num_infected} чел."
+На данный момент заражено {num_infected} чел."
 
 FRAME_LOC_10_TEXT = "За последние 10 дней в регионе {region}:\n\
 \n\

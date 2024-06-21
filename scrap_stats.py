@@ -294,7 +294,7 @@ def get_news():
     res = []
     for i in range(1, 4):
         url_main = f"https://объясняем.рф/stopkoronavirus/?PAGEN_1={i}"
-        response = requests.get(url_main, timeout=5)
+        response = requests.get(url_main, timeout=15)
         page = BeautifulSoup(response.text, 'html.parser')
         news_first = page.find_all('a', class_='u-material-card u-material-cards__card')
         for news in news_first:
