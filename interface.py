@@ -72,11 +72,11 @@ def home_button_callback():
     name_textbox_text.set(sa.HOME_MAIN_TEXT
                           + f"{misc.datetime.today().strftime('%d.%m.%Y')}")
     main_info_text.set(sa.FRAME_MAIN_TEXT.\
-                       format(date_last_call=misc.datetime.today().strftime('%d.%m.%y'),
-                              num_diseased=data_today["Количество заболевших"].sum(),
-                              num_cured=data_today["Количество выздоровевших"].sum(),
-                              num_dead=data_today["Количество умерших"].sum(),
-                              num_infected=data_today["Количество оставшихся заболевших"].sum()))
+                       format(date_last_call=str(datetime.today().strftime('%d.%m.%y')),
+                              num_diseased=misc.format_with_space_separator(data_today["Количество заболевших"].sum()),
+                              num_cured=misc.format_with_space_separator(data_today["Количество выздоровевших"].sum()),
+                              num_dead=misc.format_with_space_separator(data_today["Количество умерших"].sum()),
+                              num_infected=misc.format_with_space_separator(data_today["Количество оставшихся заболевших"].sum())))
     main_info_label.configure(font=config.FONT_INFO)
 
     df_to_graph = data_all.groupby(["Дата"])[
@@ -437,6 +437,19 @@ def period_button_callback():
                               '[%(d1)02d.%(m1)02d.%(y1)d, %(d2)02d.%(m2)02d.%(y2)d]'
                               % {'d1': day_1, 'm1': month_1, 'y1': year_1,
                                  'd2': day_2, 'm2': month_2, 'y2': year_2})
+
+        loc_info_text.set(sa.PERIOD_MAIN_TEXT.format(
+            date_first=day_fir.strftime('%d.%m.%Y'),
+            date_last=day_sec.strftime('%d.%m.%Y'),
+            region=loc_opt_menu.get(),
+            num_diseased=misc.format_with_space_separator(df_reg.iloc[-1]["Количество заболевших"].sum() -
+                         df_reg.iloc[0]["Количество заболевших"].sum()),
+            num_cured=misc.format_with_space_separator(df_reg.iloc[-1]["Количество выздоровевших"].sum() -
+                         df_reg.iloc[0]["Количество выздоровевших"].sum()),
+            num_dead=misc.format_with_space_separator(df_reg.iloc[-1]["Количество умерших"].sum() -
+                         df_reg.iloc[0]["Количество умерших"].sum()
+        )
+        ))
         #
         # отклик на полученный период
         #
@@ -615,35 +628,35 @@ menu_frame.grid_rowconfigure(3, weight=1)
 file_path = os.path.dirname(os.path.realpath(__file__))
 
 # установка кастомной фиолетовой темы приложения
-ctk.set_default_color_theme(file_path + r"\source\\violet.json")
+ctk.set_default_color_theme("source/violet.json")
 # загрузка изображений для кнопок навигации - в активном и неактивном состоянии
-home_img_a = ctk.CTkImage(light_image=Image.open(file_path + r"\images\home_w.png"),
+home_img_a = ctk.CTkImage(light_image=Image.open("images/home_w.png"),
                           dark_image=Image.open(
-                              file_path + r"\images\home_b.png"),
+                              "images/home_b.png"),
                           size=(24, 24))
-home_img_d = ctk.CTkImage(light_image=Image.open(file_path + r"\images\home_b.png"),
+home_img_d = ctk.CTkImage(light_image=Image.open("images/home_b.png"),
                           dark_image=Image.open(
-                              file_path + r"\images\home_w.png"),
+                              "images/home_w.png"),
                           size=(24, 24))
 
-cal_img_a = ctk.CTkImage(light_image=Image.open(file_path + r"\images\calendar_w.png"),
+cal_img_a = ctk.CTkImage(light_image=Image.open("images/calendar_w.png"),
                          dark_image=Image.open(
-                             file_path + r"\images\calendar_b.png"),
+                             "images/calendar_b.png"),
                          size=(24, 24))
-cal_img_d = ctk.CTkImage(light_image=Image.open(file_path + r"\images\calendar_b.png"),
+cal_img_d = ctk.CTkImage(light_image=Image.open("images/calendar_b.png"),
                          dark_image=Image.open(
-                             file_path + r"\images\calendar_w.png"),
+                             "images/calendar_w.png"),
                          size=(24, 24))
 
-loc_img_a = ctk.CTkImage(light_image=Image.open(file_path + r"\images\gps_w.png"),
-                         dark_image=Image.open(file_path + r"\images\gps_b.png"),
+loc_img_a = ctk.CTkImage(light_image=Image.open("images/gps_w.png"),
+                         dark_image=Image.open("images/gps_b.png"),
                          size=(24, 24))
-loc_img_d = ctk.CTkImage(light_image=Image.open(file_path + r"\images\gps_b.png"),
-                         dark_image=Image.open(file_path + r"\images\gps_w.png"),
+loc_img_d = ctk.CTkImage(light_image=Image.open("images/gps_b.png"),
+                         dark_image=Image.open("images/gps_w.png"),
                          size=(24, 24))
 
-theme_ing = ctk.CTkImage(light_image=Image.open(file_path + r"\images\light.png"),
-                         dark_image=Image.open(file_path + r"\images\moon.png"),
+theme_ing = ctk.CTkImage(light_image=Image.open("images/light.png"),
+                         dark_image=Image.open("images/moon.png"),
                          size=(24, 24))
 
 # определение кнопок навигации
